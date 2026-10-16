@@ -4,14 +4,14 @@
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Genebov · Ganado</title>
+<title>Ganado</title>
 <meta name="theme-color" content="#14294B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Genebov">
+<meta name="apple-mobile-web-app-title" content="Ganado">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
@@ -193,8 +193,8 @@
 <header class="cab" id="cab">
   <div class="cab-in">
     <div class="marca">
-      <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#fff"/><path d="M27.5 13.2A10 10 0 1 0 30 22h-9.2" fill="none" stroke="#14294B" stroke-width="4.2" stroke-linecap="round"/><rect x="8" y="31.5" width="24" height="3.2" rx="1.6" fill="#C62832"/></svg>
-      <div style="min-width:0"><b>Genebov <span class="cab-sub">· Ganado</span></b><span class="estado-red" id="red"><i class="punto" id="punto"></i><span id="red-txt">Cargando…</span></span></div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAJJklEQVR4nO1ZaWxU1xU+577ZZ2w8Hu/GNjgQx5g9CzSUJCQQ3KYNRZGSqPxJqjZNCEnTVKoUVYpUSpsfTUubokhkadoKtWkSEgGBQigUahEoAoOxjW0W44XxNptnfzPvvXv6444HA57x2BiNkPzJ8o937z3nfPee7d5By4cb4U4Gy7YBt4ppAtnGNIFsY5pAtjFNINuYJpBtTBPINnRZ0YqABJSwgDGVc7Okf6lu1ZryWofJ5ooG9/Q0vd/WICZoxG9YMhrZISBMmZNbFFTkwWhAx9gXj7+8snRuYtgOj5TVrCy5e8Ph9wGgOqcgxlVneHhMUZkSQEBEAACiaxZMFAgoMSSCKlv+F2tfrrI5ZE15p+UQAKwsnatwTUKGCERAQN+btfi1BauXFlStq1oc4+qX3U0/OPqXCRMQKjVOBER03XeGCUpJ0PWkRo8SgUacgFROANAZdGuc65mkZ9IvljwBAJxIz6RRC5ET/fr+9QkrmaEvMjy2hWluZKPdzm605hnMABBSYgElGtPU9MzHRK7BXGTKKbHk5hutA9HAS7UPP1peG1Rku8GSZ7QQEMJ1W+KNhSVkKtfea//vlsa9Y8pMeQLCeh1jP7rnoadm31uTV5yrNwNAVIv7YhGXHByKBt1y0CuHXXJoOB4JKXJYjcc1VeGcIRolXY7emGewOEy2EsuMcktehS2/1DLDbrRIyACgO+TZeu7gru6zg9HAipK5v7z3SY2TjiUIaMQlZK8f/2fDwCWNc5ccnFgQM0QiKDDZdq3dtNhRMXooh5ly9KZKW366rU4LAuJEVTbHHx58loDafQPvtB6C612OIQJAx/DgQMQPABIykYvGMDWNpk9Xv+gwWp88sK0vMsyJOBEBCfUacY24yq/9iS9i2s0TxJBYjoASMgJSOUfAGUazrCrC6ORCIgjEowNRv5icynpIdQKcaP2sJfcWVq3dt/WtB54qs+RxIjayRSLIYORfCowzAQGFwxSYbArXwmrcLOkZYnJNVFM8cpiAeNqElzIGnqtZ8UF7w7pZS+4vnKVyrmO3pWarnBuYzm60NvRfqK+Yf97Xd7ivYzgWMev0vlhEI57K9ZNIaVahydbsdT5RuZATSSzdVt8KGCIBPV+z4q8Xvj7r6f1jy6E6e+nzNSvWz16aZzAb2PhlKiUBAohzLc9gZni7rIcRv19aUPlYee2zh957c+l3T7u6y615YSVWk1eyqqyGgETWSikh1QAnimsK0WQq7oQgYvSH96yck1vUGXStLL17f2+LM+ybO6PIEwvDeFU/5RkRkKypETXumHqbbwQCcqLfPLD+xYYddqNldXltZ8D990v/kzUFAHjaTUxXyEJKzBMLV9jyieB2+lHCkRbmz9yzdtOinZvPea5G1bisKeNGMKSNAQqrsd6QFybbuk0Iokrs6j7ri4W9sXA0M+shDQGV85imXgoMwU1d2u2AaBn/1HIYAETUZrhrKQkoXNOIN3udU2Kf2OBUoyLfn3J3XfAPMsQ0dfdmpCQQ11QAaPJcBYAb6oDoAkR7nKkaRExdlsUJ7+tpFl16hjITklMNKKQR0aXAoFsOjXZHToSAOsYkZCJ7pFcgJjR5etuH+yGFY0gMOdG/eltEozUFBBhihdXOEFXOW33OpB2iI+oJeT/qOPZF1xmVczFnXAK7u5tOubphVE4UfRuMXHlPu7vbfP0iHU0BgW9XLJhnL1vkqEBAtxwGAKKE9ft6ml9o+Js/Hj05dGXdV9tOubp0jCVayOt3N9m3qpw7TLaQEhNyxLQ3Tu7sj/hFl4qAmxv33HyhyQRj14EXah8CgIX5M3fAiVy9SViDiP0R/9vnDnz82I+LzDkAcMbd88bJz79TtWhT3aqk0WIHhdMjglHSAUB9xfy3mw6IOQh4NezrDnlnWu0AICFsbtxz2Nmevm2eGIFicy4n8sUiALC0oDKpeHvb0Y11q4rMOaLKLCmo3F2/6ZVj/3hi/zsb5z3yYPFddqM1GYRBRXaGfR3Dg5cDQ5cCrjPuHpVzkQ/O+/oKTTkuOdjkufphe8Pu7qaJJp9xCLT4nPPzy3deOf3MXfc7TDaFazrGvLHwnzuO7a1/FQBMkh4AVM41IllVjvR1HOnrcJhss3MK8gxmlbhHDg1GA0PRYFKmgemG5ECZJQ8A+iP+U66u177+uMQyQ+HarfSLYxPoCXn397Zc8A9+tuYl4bII+NumAxvmLHvz1K5X6h5dVlx90T84z166Zu/vz7h79EzSiHvkkEcO3SBKGkmMca4ORBIELgdcP1245unq+wDg9eOfcCIdYxMN33QEPr/SuLX53yKkEFDPpGav8/MrjR3PbGnov7i97eiXPee2tx3dW/9qi9cpEpEIweReJoNBIw6UKK7eWFiMJk9GI97hH4BbKPZjZ6FmrzMQjxKQS05o+lXjl87wcKuvb3lxdXVu4eG+NgRc/9W7ycuuMFqko9E3YLFc8HKPSAsqUXFbZ4heefyeecIEGKK4QwbiUQC46B88ePU8AW1rPaxn0ub71n2rYgEACEMzV3bG3SNsbfY6W319ANAV9Fz0D8KUnwCnhANEVAUAWn39ca4yxJ2dp3tDXo14iTmXgDKPPSGtyXsVADoD7ssBV1fQDQCtvr6opohHiqkkcE0xEAAElSgAGJgurMY/7TwlIXt8Zp2OMS39g8FNiKoKAIjHEoVr4uMkitdojENAvFcyQBjpgkQHUWsvXV5UDSOtb4YwS3oYScF6JhHQTKt9Ev1PRgSE0EJTDgDYjVaAxOvseV//cDwCAD+ZvzrzcxfOVm61A0ClLZ+AHCYbAs7JLSw258LIU9xUEoCRw+VE8+xlouGRkMma8lnnaQKqr5i/dmad+JihMrNOrxEvMNm+UVzd4nX2R/xWvfHFeQ9Prgsah4B4sXnr7D6GOCvH8f05ywAAERDwZyc+uTA8yBDf/eaGHL1JuFZ6NaJj3XHxRE/Ii4C/W/705YDrP33tCPjzRfXz7GUa8ckdQspLvXChZq/zxFCnw2hdlF8BcFz4KgI+d+SjWnspJ86JZ7h/DFHh2u6us/UV8806Q6Utf0vj3oPONgYokvXkAiHd7wN3BO74XymnCWQb0wSyjWkC2cY0gWxjmkC2MU0g2/g/TuUZSkuu338AAAAASUVORK5CYII=" width="34" height="34" alt="" style="border-radius:9px;flex:0 0 34px;display:block">
+      <div style="min-width:0"><b>Ganado</b><span class="estado-red" id="red"><i class="punto" id="punto"></i><span id="red-txt">Cargando…</span></span></div>
     </div>
     <div class="sync">
       <button class="btn-ico" id="btn-ref" type="button" aria-label="Actualizar datos">
@@ -218,7 +218,7 @@
   <div class="centro" id="acceso" hidden>
     <form class="acceso" id="acceso-form">
       <h2>Clave de acceso</h2>
-      <p class="nota">Escribe la clave del tablero de Genebov. Solo se pide una vez en este celular.</p>
+      <p class="nota">Escribe la clave de la app Ganado. Solo se pide una vez en este celular.</p>
       <input type="password" id="acceso-clave" autocomplete="current-password" aria-label="Clave de acceso" required>
       <button class="btn prim" type="submit">Entrar</button>
       <p class="error" id="acceso-err" hidden>La clave no es correcta. Revísala e inténtalo otra vez.</p>

@@ -1,7 +1,7 @@
-/* Genebov · Ganado — guarda la app para abrirla sin internet.
+/* Ganado — guarda la app para abrirla sin internet.
    Los datos, fotos y fichas los guarda la página en el celular (IndexedDB). */
-var VERSION = 'genebov-v1';
-var BASICOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+var VERSION = 'genebov-v2';
+var BASICOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(BASICOS); }).then(function () { return self.skipWaiting(); }));
