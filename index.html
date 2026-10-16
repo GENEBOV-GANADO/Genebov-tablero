@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Genebov · Ganado</title>
+<meta name="theme-color" content="#14294B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Genebov">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul:#14294B; --azul-2:#1E3A66; --rojo:#C62832; --verde:#1F7A55; --ambar:#A86A12;
+    --fondo:#F2F4F7; --papel:#FFFFFF; --tinta:#16202E; --gris:#5C6878; --linea:#DDE2EA; --suave:#E8EDF4;
+    --arete:#F2C230; --arete-tinta:#14294B;
+    --titulo:"Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --texto:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --r:14px; --nav:64px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --fondo:#0E1726; --papel:#162236; --tinta:#E8EDF4; --gris:#9AA7B8; --linea:#26354D; --suave:#1C2B44;
+      --azul-2:#22416F; --verde:#4FB98A; --rojo:#E5636B; --ambar:#E0A84A; }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--fondo);color:var(--tinta);font:15.5px/1.5 var(--texto);-webkit-text-size-adjust:100%}
+  button{font:inherit;color:inherit;cursor:pointer}
+  :focus-visible{outline:3px solid var(--arete);outline-offset:2px;border-radius:6px}
+  h1,h2,h3{font-family:var(--titulo);font-weight:600;letter-spacing:-.01em;margin:0}
+  [hidden]{display:none !important}
+
+  /* ---------- cabecera ---------- */
+  .cab{position:sticky;top:0;z-index:10;background:var(--azul);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
+  .cab-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:12px}
+  .marca{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+  .marca svg{flex:0 0 34px}
+  .marca b{font-family:var(--titulo);font-weight:700;font-size:19px;letter-spacing:.01em;display:block;line-height:1.1}
+  .cab-sub{font-weight:500;color:#AFC0DA}
+  .sync{display:flex;align-items:center;gap:8px}
+  .estado-red{font-size:12px;color:#D6E0EF;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .estado-red span{overflow:hidden;text-overflow:ellipsis}
+  .punto{width:8px;height:8px;border-radius:50%;background:#59D39A;flex:0 0 8px}
+  .punto.off{background:#F2C230}
+  .btn-ico{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;width:38px;height:38px;display:grid;place-items:center;color:#fff}
+  .btn-ico[disabled]{opacity:.5}
+  .btn-ico.gira svg{animation:gira 1s linear infinite}
+  @keyframes gira{to{transform:rotate(360deg)}}
+  .progreso{max-width:1080px;margin:8px auto 0;font-size:12px;color:#D6E0EF;display:flex;align-items:center;gap:10px}
+  .barra{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden}
+  .barra i{display:block;height:100%;background:var(--arete);width:0}
+
+  /* ---------- navegación ---------- */
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--papel);border-top:1px solid var(--linea);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+  .nav button{flex:1;border:0;background:none;padding:8px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--gris);font-weight:600}
+  .nav button svg{width:24px;height:24px}
+  .nav button.on{color:var(--azul)}
+  @media (prefers-color-scheme: dark){ .nav button.on{color:#fff} }
+  .nav button.on svg{color:var(--rojo)}
+  main{max-width:1080px;margin:0 auto;padding:16px 16px calc(var(--nav) + 24px + env(safe-area-inset-bottom))}
+  @media (min-width:900px){
+    .nav{position:sticky;top:var(--cab-h,58px);bottom:auto;border-top:0;border-bottom:1px solid var(--linea);justify-content:center;gap:4px;padding:0}
+    .nav button{flex:0 0 auto;flex-direction:row;gap:8px;font-size:14px;padding:12px 18px;border-bottom:3px solid transparent}
+    .nav button.on{border-bottom-color:var(--rojo)}
+    .nav button svg{width:20px;height:20px}
+    main{padding-bottom:40px}
+  }
+
+  /* ---------- piezas comunes ---------- */
+  .seccion{margin:22px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .seccion h2{font-size:18px}
+  .nota{color:var(--gris);font-size:13px;margin:2px 0 10px}
+  .panel{background:var(--papel);border:1px solid var(--linea);border-radius:var(--r);padding:16px}
+  .vacio{color:var(--gris);text-align:center;padding:22px 8px;font-size:14px}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--suave);color:var(--gris);white-space:nowrap}
+  .chip.prod{background:rgba(31,122,85,.12);color:var(--verde)}
+  .chip.alerta{background:rgba(198,40,50,.12);color:var(--rojo)}
+  .chip.prox{background:rgba(168,106,18,.13);color:var(--ambar)}
+  .up{color:var(--verde)} .down{color:var(--rojo)}
+  .btn{border:1px solid var(--linea);background:var(--papel);border-radius:999px;padding:8px 16px;font-weight:600;font-size:14px}
+  .btn.prim{background:var(--azul);border-color:var(--azul);color:#fff}
+  a.enl{color:inherit;text-decoration:underline;text-decoration-color:var(--rojo);text-underline-offset:3px;cursor:pointer;font-weight:600}
+
+  /* arete: el código del animal como el arete amarillo de la oreja */
+  .arete{position:relative;display:inline-grid;place-items:center;min-width:46px;height:40px;padding:10px 8px 2px;background:var(--arete);color:var(--arete-tinta);
+    font-family:var(--titulo);font-weight:700;font-size:14px;line-height:1;border-radius:14px 14px 9px 9px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);flex:0 0 auto}
+  .arete::before{content:"";position:absolute;top:4px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--fondo);box-shadow:inset 0 1px 1px rgba(0,0,0,.25)}
+  .arete.sin{background:var(--suave);color:var(--gris);font-size:11px;font-weight:600}
+  .arete.grande{min-width:78px;height:66px;font-size:24px;border-radius:22px 22px 14px 14px;padding-top:18px}
+  .arete.grande::before{width:11px;height:11px;margin-left:-5.5px;top:6px}
+
+  /* ---------- resumen ---------- */
+  .franja{background:var(--azul);color:#fff;border-radius:var(--r);padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:18px}
+  .franja .finca{font-weight:600;color:#AFC0DA;font-size:13px}
+  .franja .cifra{font-family:var(--titulo);font-weight:700;font-size:40px;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums}
+  .franja .cifra small{font-size:16px;font-weight:600;color:#AFC0DA;margin-left:4px}
+  .franja .det{font-size:13px;color:#D6E0EF;font-variant-numeric:tabular-nums}
+  .franja .det .up{color:#7BE0B0} .franja .det .down{color:#FF9EA4}
+  .graficas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+  svg text{fill:var(--gris);font-size:11px;font-family:var(--texto)}
+  svg .val{fill:var(--tinta);font-weight:700;font-family:var(--titulo)}
+  .alertas{display:flex;flex-direction:column}
+  .alerta{display:flex;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--linea);background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
+  .alerta:last-child{border-bottom:0}
+  .alerta .q{color:var(--gris);font-size:13px}
+  .alerta .n{font-weight:600}
+  .alerta .der{margin-left:auto}
+
+  /* ---------- listas ---------- */
+  .buscar{position:sticky;top:calc(var(--cab-h,58px) + 8px);z-index:5;margin-bottom:10px}
+  @media (min-width:900px){ .buscar{top:calc(var(--cab-h,58px) + 56px)} }
+  .buscar input{width:100%;font:inherit;font-size:16px;padding:12px 14px 12px 42px;border-radius:12px;border:1px solid var(--linea);background:var(--papel) no-repeat 14px 50%/18px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C6878' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");color:var(--tinta)}
+  .filtros{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+  .filtros::-webkit-scrollbar{display:none}
+  .filtros button{border:1px solid var(--linea);background:var(--papel);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;white-space:nowrap;color:var(--gris)}
+  .filtros button.on{background:var(--azul);border-color:var(--azul);color:#fff}
+  .lista{background:var(--papel);border:1px solid var(--linea);border-radius:var(--r);overflow:hidden}
+  .fila{display:flex;align-items:center;gap:12px;padding:10px 14px;border:0;border-bottom:1px solid var(--linea);background:none;width:100%;text-align:left}
+  .fila:last-child{border-bottom:0}
+  .fila:hover{background:var(--suave)}
+  .fila .nom{font-weight:600;font-size:15.5px}
+  .fila .sub{color:var(--gris);font-size:13px}
+  .fila .der{margin-left:auto;text-align:right}
+  .grupo{padding:8px 14px;background:var(--suave);color:var(--gris);font-size:12.5px;font-weight:700}
+
+  /* ---------- ficha del animal ---------- */
+  .volver{border:0;background:none;padding:6px 0;font-weight:600;color:var(--gris);display:inline-flex;align-items:center;gap:6px;margin-bottom:8px}
+  .ficha{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+  @media (min-width:760px){ .ficha{grid-template-columns:minmax(0,420px) minmax(0,1fr);align-items:start} }
+  .foto{position:relative;border-radius:var(--r);overflow:hidden;background:#0b1320;min-height:240px;display:grid;place-items:center;color:var(--gris);font-size:13px;text-align:center}
+  .foto .fondo{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(18px) brightness(.55);transform:scale(1.1)}
+  .foto img{position:relative;width:100%;height:auto;max-height:78vh;object-fit:contain;display:block;cursor:zoom-in}
+  .foto .arete{position:absolute;left:12px;top:12px;z-index:2}
+  .ftitulo{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+  .ftitulo h1{font-size:30px;line-height:1.1}
+  .datos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 18px;margin:0}
+  .datos dt{color:var(--gris);font-size:12.5px}
+  .datos dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+  .crias{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .crias button{border:0;background:var(--suave);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
+  .padres{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+  .padre h3{font-size:13px;color:var(--gris);font-family:var(--texto);font-weight:700;margin-bottom:10px}
+  .padre-top{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+  .mini{width:84px;height:84px;flex:0 0 84px;border-radius:12px;overflow:hidden;background:var(--suave);display:grid;place-items:center;color:var(--gris);font-size:11px;text-align:center}
+  .mini img{width:100%;height:100%;object-fit:cover;object-position:center 70%}
+  .pnom{font-family:var(--titulo);font-weight:600;font-size:19px;line-height:1.2}
+  .sub{color:var(--gris);font-size:13px}
+  .paginas{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .paginas button{width:92px;aspect-ratio:3/4;border:1px solid var(--linea);border-radius:10px;overflow:hidden;padding:0;background:var(--suave);font-size:11px;color:var(--gris)}
+  .paginas img{width:100%;height:100%;object-fit:cover;object-position:top}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}
+  th{text-align:left;color:var(--gris);font-weight:600;font-size:12.5px;padding:8px 6px;border-bottom:1px solid var(--linea);white-space:nowrap;position:sticky;top:0;background:var(--papel)}
+  td{padding:9px 6px;border-bottom:1px solid var(--linea)}
+  td.n,th.n{text-align:right}
+  th button{border:0;background:none;padding:0;font:inherit;color:inherit}
+  tr.clic{cursor:pointer} tr.clic:hover td{background:var(--suave)}
+  @media (max-width:540px){ .hn{display:none} }
+  .seg{display:inline-flex;background:var(--suave);border-radius:999px;padding:3px;margin-bottom:12px}
+  .seg button{border:0;background:none;border-radius:999px;padding:7px 16px;font-weight:600;font-size:14px;color:var(--gris)}
+  .seg button.on{background:var(--papel);color:var(--tinta);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+  /* ---------- toros ---------- */
+  .toros{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .toro{border:1px solid var(--linea);background:var(--papel);border-radius:var(--r);overflow:hidden;padding:0;text-align:left;display:flex;flex-direction:column}
+  .toro .tfoto{aspect-ratio:3/4;background:var(--suave);display:grid;place-items:center;color:var(--gris);font-size:12px;overflow:hidden}
+  .toro .tfoto img{width:100%;height:100%;object-fit:cover;object-position:top}
+  .toro .tt{padding:9px 11px 11px}
+  .toro .tt b{font-family:var(--titulo);font-weight:600;display:block}
+
+  /* ---------- visor de fichas ---------- */
+  .visor{position:fixed;inset:0;z-index:40;background:rgba(6,12,24,.94);display:flex;flex-direction:column}
+  .visor .vb{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;color:#fff}
+  .visor .vb b{flex:1;font-family:var(--titulo)}
+  .visor .vc{flex:1;overflow:auto;padding:0 10px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .visor .vc .pag{width:100%;max-width:920px;min-height:220px;background:#111b2c;color:#9AA7B8;display:grid;place-items:center;border-radius:8px;overflow:hidden}
+  .visor .vc img{width:100%;height:auto;display:block}
+
+  /* ---------- acceso y carga ---------- */
+  .centro{min-height:55vh;display:grid;place-items:center;text-align:center;padding:20px}
+  .spin{width:30px;height:30px;border:3px solid var(--linea);border-top-color:var(--rojo);border-radius:50%;margin:0 auto 12px;animation:gira 1s linear infinite}
+  .acceso{max-width:360px;width:100%}
+  .acceso input{width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;border:1px solid var(--linea);background:var(--papel);color:var(--tinta);margin:12px 0}
+  .error{color:var(--rojo);font-size:14px}
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important} }
+</style>
+</head>
+<body>
+<header class="cab" id="cab">
+  <div class="cab-in">
+    <div class="marca">
+      <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#fff"/><path d="M27.5 13.2A10 10 0 1 0 30 22h-9.2" fill="none" stroke="#14294B" stroke-width="4.2" stroke-linecap="round"/><rect x="8" y="31.5" width="24" height="3.2" rx="1.6" fill="#C62832"/></svg>
+      <div style="min-width:0"><b>Genebov <span class="cab-sub">· Ganado</span></b><span class="estado-red" id="red"><i class="punto" id="punto"></i><span id="red-txt">Cargando…</span></span></div>
+    </div>
+    <div class="sync">
+      <button class="btn-ico" id="btn-ref" type="button" aria-label="Actualizar datos">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="progreso" id="prog" hidden><span id="prog-txt"></span><span class="barra"><i id="prog-bar"></i></span></div>
+</header>
+
+<nav class="nav" id="nav" aria-label="Secciones">
+  <button type="button" data-tab="resumen" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumen</button>
+  <button type="button" data-tab="animales"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 4h8l1 3v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7z"/><circle cx="12" cy="8" r="1.4"/><path d="M10 14h4"/></svg>Animales</button>
+  <button type="button" data-tab="produccion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/></svg>Producción</button>
+  <button type="button" data-tab="toros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5c0 3 2 5 5 5M21 5c0 3-2 5-5 5"/><path d="M8 9h8l-1 9a3 3 0 0 1-6 0z"/></svg>Toros</button>
+</nav>
+
+<main id="main">
+  <div class="centro" id="cargando"><div><div class="spin"></div>Cargando datos de GANADO…</div></div>
+
+  <div class="centro" id="acceso" hidden>
+    <form class="acceso" id="acceso-form">
+      <h2>Clave de acceso</h2>
+      <p class="nota">Escribe la clave del tablero de Genebov. Solo se pide una vez en este celular.</p>
+      <input type="password" id="acceso-clave" autocomplete="current-password" aria-label="Clave de acceso" required>
+      <button class="btn prim" type="submit">Entrar</button>
+      <p class="error" id="acceso-err" hidden>La clave no es correcta. Revísala e inténtalo otra vez.</p>
+    </form>
+  </div>
+
+  <section id="tab-resumen" hidden>
+    <div class="franja" id="franja"></div>
+    <div class="seccion"><h2>Litros por pesaje</h2></div>
+    <div class="graficas" id="graficas"></div>
+    <div class="seccion"><h2>Partos vencidos y próximos</h2><span class="sub" id="alertas-n"></span></div>
+    <p class="nota">Vacas preñadas con 253 días o más de gestación según CARTAGO y LA VICTORIA.</p>
+    <div class="panel alertas" id="alertas"></div>
+  </section>
+
+  <section id="tab-animales" hidden>
+    <div id="buscador">
+      <div class="buscar"><input type="search" id="q" placeholder="Buscar por nombre o código" aria-label="Buscar animal" autocomplete="off"></div>
+      <div class="filtros" id="f-ubic" role="group" aria-label="Ubicación"></div>
+      <div class="lista" id="lista"></div>
+    </div>
+    <div id="ficha" hidden></div>
+  </section>
+
+  <section id="tab-produccion" hidden>
+    <div class="seg" id="p-finca" role="group" aria-label="Finca"><button type="button" class="on" data-f="Cartago">Cartago</button><button type="button" data-f="La Victoria">La Victoria</button></div>
+    <div class="panel">
+      <h2 id="p-titulo" style="font-size:17px">Último pesaje</h2>
+      <p class="nota">El cambio es frente al pesaje anterior de la misma vaca. Toca una vaca para abrir su ficha.</p>
+      <div style="overflow-x:auto"><table id="t-prod"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="tab-toros" hidden>
+    <div id="toros-lista">
+      <div class="buscar"><input type="search" id="q-toro" placeholder="Buscar toro" aria-label="Buscar toro" autocomplete="off"></div>
+      <div class="filtros" id="f-raza" role="group" aria-label="Raza"></div>
+      <div class="toros" id="toros"></div>
+    </div>
+    <div id="toro" hidden></div>
+  </section>
+</main>
+
+<div class="visor" id="visor" hidden role="dialog" aria-modal="true" aria-labelledby="visor-tit">
+  <div class="vb"><b id="visor-tit"></b><button class="btn" id="visor-x" type="button">Cerrar</button></div>
+  <div class="vc" id="visor-c"></div>
+</div>
+
+<script>
+/* Dirección del script de GANADO (Implementar > Administrar implementaciones > URL de la app web) */
+var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9ExMbZnFe4hdhD2-Ex3vWdc2UdSaAl2chqg7krtPBYWXvbYI/exec';
+</script>
+<script>
+(function () {
+  'use strict';
+  // =============== utilidades ===============
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var el = function (tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  var f1 = function (n) { return n == null || isNaN(n) ? '—' : (Math.round(n * 10) / 10).toLocaleString('es-CO'); };
+  var f0 = function (n) { return n == null || isNaN(n) ? '—' : Math.round(n).toLocaleString('es-CO'); };
+  var cap = function (s) { s = String(s || '').trim(); return s.charAt(0).toUpperCase() + s.slice(1); };
+  var low = function (s) { return String(s || '').trim().toLowerCase(); };
+  var norm = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); };
+  function iso(s) {
+    s = String(s || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})(?!\d)/);
+    if (!m) return '';
+    var y = +m[3]; if (y < 100) y += 2000;
+    return y + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+  }
+  var fFecha = function (i) { if (!i) return '—'; var p = i.split('-'); return (+p[2]) + '/' + (+p[1]) + '/' + p[0]; };
+  var fCorta = function (i) { if (!i) return ''; var p = i.split('-'); return (+p[2]) + '/' + (+p[1]) + '/' + p[0].slice(2); };
+  var dias = function (a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 864e5); };
+  function edad(nac, hoy) {
+    if (!nac || !hoy) return '';
+    var d = dias(nac, hoy); if (d < 0) return '';
+    if (d < 60) return d + ' días';
+    var meses = Math.floor(d / 30.44);
+    if (meses < 24) return meses + ' meses';
+    var a = Math.floor(meses / 12), r = meses % 12;
+    return a + ' años' + (r ? ' ' + r + (r === 1 ? ' mes' : ' meses') : '');
+  }
+  var ORDEN_UB = function (u) { return u === 'Cartago' ? 0 : u === 'La Victoria' ? 1 : 2; };
+  function seccion(hijo) { var s = el('div', 'seccion'); s.append(hijo); return s; }
+  function arete(codigo, grande) { var a = el('span', 'arete' + (codigo ? '' : ' sin') + (grande ? ' grande' : ''), codigo || 's/c'); a.setAttribute('aria-label', codigo ? 'Código ' + codigo : 'Sin código'); return a; }
+
+  // =============== fuente de datos ===============
+  // Dentro de Apps Script se usa google.script.run; publicada como app,
+  // se usa la API del script y todo se guarda en el celular (IndexedDB).
+  var EN_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+  var ANCHO_FOTO = 700, ANCHO_FICHA = 1400;
+
+  var bd = (function () {
+    var p = null;
+    function abrir() {
+      if (p) return p;
+      p = new Promise(function (ok, mal) {
+        if (!window.indexedDB) return mal(new Error('sin IndexedDB'));
+        var r = indexedDB.open('genebov', 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('kv'); r.result.createObjectStore('img'); };
+        r.onsuccess = function () { ok(r.result); };
+        r.onerror = function () { mal(r.error); };
+      });
+      return p;
+    }
+    function op(tienda, modo, fn) {
+      return abrir().then(function (db) {
+        return new Promise(function (ok, mal) {
+          var tx = db.transaction(tienda, modo), st = tx.objectStore(tienda), res = fn(st);
+          tx.oncomplete = function () { ok(res && 'result' in res ? res.result : undefined); };
+          tx.onerror = function () { mal(tx.error); };
+        });
+      });
+    }
+    return {
+      get: function (t, k) { return op(t, 'readonly', function (s) { return s.get(k); }); },
+      put: function (t, k, v) { return op(t, 'readwrite', function (s) { s.put(v, k); }); },
+      del: function (t, k) { return op(t, 'readwrite', function (s) { s.delete(k); }); },
+      keys: function (t) { return op(t, 'readonly', function (s) { return s.getAllKeys(); }); }
+    };
+  })();
+
+  function clave() { try { return localStorage.getItem('genebov_clave') || ''; } catch (e) { return ''; } }
+  function url(params) {
+    var q = Object.keys(params).map(function (k) { return k + '=' + encodeURIComponent(params[k]); }).join('&');
+    var c = clave(); if (c) q += '&clave=' + encodeURIComponent(c);
+    return GENEBOV_API + '?' + q;
+  }
+  function pedirJson(params, ms) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var t = ctl ? setTimeout(function () { ctl.abort(); }, ms || 60000) : null;
+    return fetch(url(params), { signal: ctl ? ctl.signal : undefined, redirect: 'follow' })
+      .then(function (r) { if (!r.ok) throw new Error('El servidor respondió ' + r.status); return r.json(); })
+      .then(function (j) { if (t) clearTimeout(t); if (j && j.error === 'clave') { var e = new Error('clave'); e.clave = true; throw e; } if (j && j.error) throw new Error(j.error); return j; });
+  }
+
+  var fuente = {
+    datos: function () {
+      if (EN_GAS) return new Promise(function (ok, mal) { google.script.run.withSuccessHandler(ok).withFailureHandler(mal).datosTablero(); });
+      return pedirJson({ accion: 'api' }).then(function (j) {
+        var d = j.datos; d.guardado = new Date().toISOString();
+        return bd.put('kv', 'datos', d).catch(function () {}).then(function () { return d; });
+      });
+    },
+    guardados: function () { return EN_GAS ? Promise.resolve(null) : bd.get('kv', 'datos').catch(function () { return null; }); }
+  };
+
+  // ---- imágenes ----
+  var urlsObj = {};
+  function b64ABlob(b64, mime) {
+    var bin = atob(b64), n = bin.length, u = new Uint8Array(n);
+    for (var i = 0; i < n; i++) u[i] = bin.charCodeAt(i);
+    return new Blob([u], { type: mime || 'image/jpeg' });
+  }
+  var enCurso = {};
+  function bajarImagen(id, ancho) {
+    if (enCurso[id]) return enCurso[id];
+    enCurso[id] = pedirJson({ accion: 'foto', id: id, w: ancho }, 90000).then(function (j) {
+      var blob = b64ABlob(j.data, j.mime);
+      return bd.put('img', id, blob).catch(function () {}).then(function () { delete enCurso[id]; return blob; });
+    }, function (e) { delete enCurso[id]; throw e; });
+    return enCurso[id];
+  }
+  // Devuelve una dirección para <img src> (Promise)
+  function imagen(id, ancho) {
+    if (!id) return Promise.reject(new Error('sin foto'));
+    if (urlsObj[id]) return Promise.resolve(urlsObj[id]);
+    if (EN_GAS) {
+      return new Promise(function (ok, mal) {
+        var im = new Image();
+        im.onload = function () { urlsObj[id] = im.src; ok(im.src); };
+        im.onerror = function () {
+          google.script.run.withSuccessHandler(function (src) { urlsObj[id] = src; ok(src); }).withFailureHandler(mal).fotoAnimalTablero(id, ancho);
+        };
+        im.src = 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w' + ancho;
+      });
+    }
+    return bd.get('img', id).catch(function () { return null; }).then(function (blob) {
+      if (blob) return blob;
+      if (!navigator.onLine) throw new Error('sin conexión');
+      return bajarImagen(id, ancho);
+    }).then(function (blob) { var u = URL.createObjectURL(blob); urlsObj[id] = u; return u; });
+  }
+  function abrirFoto(src, alt) {
+    $('#visor-tit').textContent = alt || 'Foto';
+    var c = $('#visor-c'); c.innerHTML = '';
+    var p = el('div', 'pag'); var im = new Image(); im.src = src; im.alt = alt || ''; p.append(im); c.append(p);
+    $('#visor').hidden = false; $('#visor-x').focus();
+  }
+  function ponerImagen(cont, id, ancho, alt, textoSin) {
+    cont.textContent = id ? 'Cargando…' : (textoSin || 'Sin foto');
+    if (!id) return;
+    imagen(id, ancho).then(function (src) {
+      var im = new Image(); im.alt = alt || ''; im.decoding = 'async'; im.src = src;
+      var tag = cont.querySelector('.arete');
+      cont.textContent = '';
+      if (cont.classList.contains('foto') && /^Foto de/.test(alt || '')) {
+        var fo = el('div', 'fondo'); fo.style.backgroundImage = 'url("' + src + '")'; cont.append(fo);
+        im.addEventListener('click', function () { abrirFoto(src, alt); });
+      }
+      cont.append(im); if (tag) cont.append(tag);
+    }).catch(function () { cont.textContent = navigator.onLine ? 'No se pudo cargar la imagen' : 'Imagen no guardada todavía'; });
+  }
+
+  // ---- guardar todas las imágenes para usar sin internet ----
+  var guardando = false;
+  function guardarImagenes() {
+    if (EN_GAS || guardando || !D) return;
+    var tareas = [];
+    A.forEach(function (f) { if (f.fotoId) tareas.push([f.fotoId, ANCHO_FOTO]); });
+    (D.toros || []).forEach(function (t) { (t.archivos || []).forEach(function (a) { tareas.push([a.id, ANCHO_FICHA]); }); });
+    var vistos = {}; tareas = tareas.filter(function (t) { if (vistos[t[0]]) return false; vistos[t[0]] = 1; return true; });
+    guardando = true;
+    bd.keys('img').catch(function () { return []; }).then(function (ya) {
+      var tiene = {}; ya.forEach(function (k) { tiene[k] = 1; });
+      // borrar imágenes que ya no se usan
+      ya.forEach(function (k) { if (!vistos[k]) bd.del('img', k).catch(function () {}); });
+      var faltan = tareas.filter(function (t) { return !tiene[t[0]]; });
+      var total = tareas.length, hechas = total - faltan.length, fallas = 0;
+      if (!faltan.length) { guardando = false; mostrarProgreso(null); return; }
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+      mostrarProgreso(hechas, total);
+      var i = 0;
+      function sig() {
+        if (!navigator.onLine) return Promise.resolve();
+        var t = faltan[i++]; if (!t) return Promise.resolve();
+        if (urlsObj[t[0]]) { hechas++; mostrarProgreso(hechas, total); return sig(); }
+        return bajarImagen(t[0], t[1]).then(function () { hechas++; }, function () { fallas++; })
+          .then(function () { mostrarProgreso(hechas, total); return sig(); });
+      }
+      return Promise.all([sig(), sig(), sig()]).then(function () {
+        guardando = false;
+        mostrarProgreso(null, null, fallas);
+      });
+    });
+  }
+  function mostrarProgreso(hechas, total, fallas) {
+    var p = $('#prog');
+    if (hechas == null) {
+      p.hidden = !fallas;
+      if (fallas) { $('#prog-txt').textContent = fallas + ' imágenes no se pudieron guardar. Toca Actualizar para reintentar.'; $('#prog-bar').style.width = '100%'; }
+      return;
+    }
+    p.hidden = false;
+    $('#prog-txt').textContent = 'Guardando fotos y fichas para usar sin internet: ' + hechas + ' de ' + total;
+    $('#prog-bar').style.width = Math.round(hechas / total * 100) + '%';
+  }
+
+  // =============== estado ===============
+  var D = null, A = [], porId = {}, fechasFinca = {}, ultimoFinca = {}, torosIdx = {};
+  var vista = { tab: 'resumen', animal: null, toro: null };
+  var ordenProd = { k: 'lt', dir: -1 }, fincaProd = 'Cartago', filtroUb = '', filtroRaza = '';
+
+  function estadoRed(texto, enLinea) {
+    $('#red-txt').textContent = texto;
+    $('#punto').className = 'punto' + (enLinea ? '' : ' off');
+  }
+  function fechaHora(isoStr) {
+    try { var d = new Date(isoStr); return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) + ', ' + d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }); } catch (e) { return ''; }
+  }
+
+  // =============== carga ===============
+  function cargar(forzar) {
+    var btn = $('#btn-ref');
+    btn.disabled = true; btn.classList.add('gira');
+    var listo = function () { btn.disabled = false; btn.classList.remove('gira'); };
+    var primero = !D;
+    var conGuardados = primero ? fuente.guardados().then(function (g) { if (g && !D) { preparar(g); dibujarTodo(); estadoRed('Datos guardados del ' + fechaHora(g.guardado), false); } }) : Promise.resolve();
+    conGuardados.then(function () {
+      if (!EN_GAS && !navigator.onLine) {
+        listo();
+        if (!D) mostrarError('No hay conexión y este celular todavía no tiene datos guardados. Abre la app una vez con internet.');
+        else estadoRed('Sin conexión · datos del ' + fechaHora(D.guardado), false);
+        return;
+      }
+      estadoRed(D ? 'Actualizando…' : 'Cargando…', true);
+      return fuente.datos().then(function (d) {
+        listo(); preparar(d); dibujarTodo();
+        estadoRed(EN_GAS ? 'Leído de GANADO · ' + d.generado : 'Actualizado ' + fechaHora(d.guardado), true);
+        guardarImagenes();
+      }).catch(function (e) {
+        listo();
+        if (e && e.clave) return pedirClave(!!clave());
+        if (D) estadoRed('Sin conexión · datos del ' + fechaHora(D.guardado), false);
+        else mostrarError('No se pudieron leer los datos de GANADO: ' + (e && e.message || e));
+      });
+    });
+  }
+  function mostrarError(msg) {
+    var c = $('#cargando'); c.hidden = false; c.innerHTML = '';
+    var w = el('div'); w.append(el('p', 'error', msg)); var b = el('button', 'btn prim', 'Reintentar'); b.type = 'button'; b.addEventListener('click', function () { cargar(true); }); w.append(b); c.append(w);
+    estadoRed('Sin datos', false);
+  }
+  function pedirClave(fallo) {
+    $('#cargando').hidden = true; $('#acceso').hidden = false; $('#acceso-err').hidden = !fallo;
+    estadoRed('Falta la clave', false);
+    $('#acceso-clave').focus();
+  }
+  $('#acceso-form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    try { localStorage.setItem('genebov_clave', $('#acceso-clave').value.trim()); } catch (e) {}
+    $('#acceso').hidden = true; $('#cargando').hidden = false; cargar(true);
+  });
+
+  // =============== preparar datos ===============
+  function preparar(d) {
+    D = d;
+    var fincaDe = function (u) {
+      var t = String(u || '').trim(); var T = t.toUpperCase();
+      if (T === 'CARTAGO') return 'Cartago';
+      if (T === 'LA VICTORIA' || T === 'VICTORIA') return 'La Victoria';
+      return t ? cap(t.toLowerCase()) : 'Sin ubicación';
+    };
+    var map = {};
+    var base = function (finca, nombre) {
+      return { id: finca + '|' + low(nombre), nombre: cap(nombre), ubicacion: finca, codigo: '', nacimiento: '', madre: '', padre: '',
+        servicio: '', posible: '', dg: null, fotoId: '', r: '', parto: '', obs: '', pesajes: [], enFinca: false };
+    };
+    (d.animales || []).forEach(function (h) {
+      var f = base(fincaDe(h.ubicacion), h.nombre);
+      if (map[f.id]) return;
+      f.codigo = h.codigo; f.nacimiento = iso(h.nacimiento); f.madre = h.madre; f.padre = h.padre;
+      f.servicio = iso(h.servicio); f.posible = iso(h.posible); f.dg = h.dg; f.fotoId = h.fotoId;
+      map[f.id] = f;
+    });
+    var tomar = function (finca, nombre, codigo) {
+      var id = finca + '|' + low(nombre);
+      if (map[id]) return map[id];
+      var otra = null;
+      Object.keys(map).forEach(function (k) {
+        var f = map[k];
+        if (!otra && low(f.nombre) === low(nombre) && f.ubicacion !== 'Cartago' && f.ubicacion !== 'La Victoria' &&
+            (!f.codigo || !codigo || String(f.codigo) === String(codigo))) otra = f;
+      });
+      if (otra) { delete map[otra.id]; otra.id = id; otra.ubicacion = finca; map[id] = otra; return otra; }
+      map[id] = base(finca, nombre); return map[id];
+    };
+    var vistos = {};
+    (d.fincas || []).forEach(function (r) {
+      var id = r.finca + '|' + low(r.nombre);
+      if (vistos[id] && !r.r) return;
+      vistos[id] = true;
+      var f = tomar(r.finca, r.nombre, r.codigo);
+      f.enFinca = true; f.codigo = f.codigo || r.codigo; f.r = r.r;
+      f.servicio = iso(r.servicio) || f.servicio; f.posible = iso(r.posible) || f.posible;
+      f.dg = r.dg != null ? r.dg : f.dg; f.parto = iso(r.parto) || f.parto; f.obs = r.obs;
+    });
+    fechasFinca = {}; ultimoFinca = {};
+    (d.pesajes || []).forEach(function (p) {
+      (fechasFinca[p.finca] = fechasFinca[p.finca] || {})[p.fecha] = true;
+      var f = tomar(p.finca, p.nombre, p.codigo);
+      f.codigo = f.codigo || p.codigo;
+      f.pesajes.push(p);
+    });
+    Object.keys(fechasFinca).forEach(function (k) {
+      fechasFinca[k] = Object.keys(fechasFinca[k]).sort();
+      ultimoFinca[k] = fechasFinca[k][fechasFinca[k].length - 1];
+    });
+    A = Object.keys(map).map(function (k) { return map[k]; });
+    A.forEach(function (f) {
+      f.pesajes.sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; });
+      var u = f.pesajes[f.pesajes.length - 1];
+      f.ultimo = u || null;
+      f.enProduccion = !!(u && u.fecha === ultimoFinca[u.finca]);
+      f.estado = f.enProduccion ? 'En producción' : f.enFinca ? 'Seca o sin leche en el último pesaje' : f.pesajes.length ? 'Ya no aparece en los pesajes' : 'No está en producción';
+    });
+    A.sort(function (a, b) { return ORDEN_UB(a.ubicacion) - ORDEN_UB(b.ubicacion) || a.ubicacion.localeCompare(b.ubicacion, 'es') || a.nombre.localeCompare(b.nombre, 'es'); });
+    porId = {}; A.forEach(function (f) { porId[f.id] = f; });
+    torosIdx = {};
+    (d.toros || []).forEach(function (t) { [t.nombre].concat(t.otros || []).forEach(function (n) { var k = norm(n); if (k && !torosIdx[k]) torosIdx[k] = t; }); });
+    $('#cargando').hidden = true;
+  }
+
+  function buscarPorNombre(nombre) {
+    var n = low(nombre); if (!n) return null;
+    var c = A.filter(function (f) { return low(f.nombre) === n; });
+    c.sort(function (a, b) { return ORDEN_UB(a.ubicacion) - ORDEN_UB(b.ubicacion); });
+    return c[0] || null;
+  }
+  function criasDe(f) {
+    var n = low(f.nombre);
+    return A.filter(function (x) { return x !== f && low(x.madre) === n; }).sort(function (a, b) { return (b.nacimiento || '').localeCompare(a.nacimiento || ''); });
+  }
+  function criasDeToro(t, nombre) {
+    return A.filter(function (x) { var k = norm(x.padre); return k && (t ? torosIdx[k] === t : k === norm(nombre)); })
+      .sort(function (a, b) { return (b.nacimiento || '').localeCompare(a.nacimiento || ''); });
+  }
+
+  // =============== gráfica de barras ===============
+  function barras(cont, items, opts) {
+    opts = opts || {}; cont.innerHTML = '';
+    var W = Math.max(cont.clientWidth || 320, 260), H = opts.h || 200, mt = 24, mb = opts.sub ? 36 : 22, ml = 4, mr = 4;
+    var max = Math.max.apply(null, items.map(function (i) { return i.v || 0; }).concat([opts.min || 1])) * 1.12;
+    var n = items.length || 1, bw = Math.min(44, (W - ml - mr) / n * 0.6), step = (W - ml - mr) / n;
+    var ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', '100%'); svg.setAttribute('role', 'img');
+    if (opts.titulo) svg.setAttribute('aria-label', opts.titulo);
+    var t = function (x, y, s, cls) { var e = document.createElementNS(ns, 'text'); e.setAttribute('x', x); e.setAttribute('y', y); e.setAttribute('text-anchor', 'middle'); if (cls) e.setAttribute('class', cls); e.textContent = s; svg.appendChild(e); };
+    var base = H - mb;
+    var lin = document.createElementNS(ns, 'line');
+    lin.setAttribute('x1', ml); lin.setAttribute('x2', W - mr); lin.setAttribute('y1', base); lin.setAttribute('y2', base);
+    lin.setAttribute('stroke', 'currentColor'); lin.setAttribute('opacity', '.18'); svg.appendChild(lin);
+    items.forEach(function (it, i) {
+      var cx = ml + step * i + step / 2;
+      if (it.v == null) t(cx, base - 6, 'sin registro');
+      else {
+        var h = (base - mt) * (it.v / max), r = document.createElementNS(ns, 'rect');
+        r.setAttribute('x', cx - bw / 2); r.setAttribute('y', base - h); r.setAttribute('width', bw); r.setAttribute('height', Math.max(h, 1));
+        r.setAttribute('rx', 5); r.setAttribute('fill', it.color || 'var(--azul-2)'); svg.appendChild(r);
+        t(cx, base - h - 7, it.top != null ? it.top : f1(it.v), 'val');
+      }
+      t(cx, base + 15, it.label);
+      if (opts.sub) t(cx, base + 30, it.sub || '');
+    });
+    cont.appendChild(svg);
+  }
+
+  // =============== Resumen ===============
+  function resumenPesajes() {
+    var g = {};
+    (D.pesajes || []).forEach(function (p) {
+      var k = p.finca + '|' + p.fecha, r = g[k] = g[k] || { finca: p.finca, fecha: p.fecha, vacas: 0, lt: 0, kgd: 0 };
+      r.vacas++; r.lt += p.lt; r.kgd += p.kgd || 0;
+    });
+    return Object.keys(g).map(function (k) { var r = g[k]; r.prom = r.lt / r.vacas; return r; })
+      .sort(function (a, b) { return a.finca.localeCompare(b.finca) || (a.fecha < b.fecha ? -1 : 1); });
+  }
+  function dibujarResumen() {
+    var R = resumenPesajes(), fr = $('#franja'), gr = $('#graficas');
+    fr.innerHTML = ''; gr.innerHTML = '';
+    ['Cartago', 'La Victoria'].forEach(function (finca) {
+      var rs = R.filter(function (r) { return r.finca === finca; });
+      if (!rs.length) return;
+      var u = rs[rs.length - 1], a = rs[rs.length - 2], w = el('div');
+      w.append(el('div', 'finca', finca + ' · pesaje del ' + fFecha(u.fecha)));
+      var c = el('div', 'cifra', f0(u.lt)); c.append(el('small', null, 'litros')); w.append(c);
+      var det = el('div', 'det', u.vacas + ' vacas · ' + f1(u.prom) + ' L por vaca');
+      w.append(det);
+      if (a) { var dl = u.lt - a.lt, d2 = el('div', 'det'); d2.append(el('span', dl > 0 ? 'up' : dl < 0 ? 'down' : '', (dl > 0 ? '+' : '') + f0(dl) + ' L'), document.createTextNode(' frente al ' + fCorta(a.fecha))); w.append(d2); }
+      fr.append(w);
+      var p = el('div', 'panel'); p.append(el('h3', null, finca)); var ch = el('div'); p.append(ch); gr.append(p);
+      requestAnimationFrame(function () {
+        barras(ch, rs.map(function (r) { return { v: r.lt, top: f0(r.lt), label: fCorta(r.fecha), sub: r.vacas + ' vacas', color: finca === 'Cartago' ? 'var(--azul-2)' : 'var(--rojo)' }; }), { sub: true, h: 210, titulo: 'Litros por pesaje en ' + finca });
+      });
+    });
+    var ult = R.filter(function (r) { return r.fecha === ultimoFinca[r.finca]; });
+    var lt = ult.reduce(function (s, r) { return s + r.lt; }, 0), kg = ult.reduce(function (s, r) { return s + r.kgd; }, 0);
+    if (kg) { var w2 = el('div'); w2.append(el('div', 'finca', 'Rendimiento del concentrado')); var c2 = el('div', 'cifra', f1(lt / kg)); c2.append(el('small', null, 'L por kg')); w2.append(c2, el('div', 'det', f0(lt) + ' L con ' + f0(kg) + ' kg en el último pesaje de cada finca')); fr.append(w2); }
+    // alertas
+    var al = $('#alertas'); al.innerHTML = '';
+    var lista = (D.fincas || []).filter(function (r) { return String(r.r).toUpperCase() === 'C' && r.dg != null && r.dg >= 253; })
+      .map(function (r) { var s = iso(r.servicio), p = iso(r.posible); return { r: r, faltan: (s && p ? dias(s, p) : 274) - r.dg }; })
+      .sort(function (a, b) { return a.faltan - b.faltan; });
+    $('#alertas-n').textContent = lista.length ? lista.length + ' vacas' : '';
+    if (!lista.length) al.append(el('div', 'vacio', 'No hay partos vencidos ni próximos.'));
+    lista.forEach(function (x) {
+      var f = porId[x.r.finca + '|' + low(x.r.nombre)];
+      var b = el('button', 'alerta'); b.type = 'button';
+      b.append(arete(x.r.codigo));
+      var m = el('div'); m.append(el('div', 'n', cap(x.r.nombre) + ' · ' + x.r.finca));
+      m.append(el('div', 'q', x.faltan < 0 ? (x.r.lt ? 'Sigue en ordeño con la fecha de parto vencida: confirmar si ya parió' : 'Confirmar si ya parió y registrar F PARTO') : 'Debe estar seca y en preparto'));
+      b.append(m);
+      var d = el('div', 'der'); d.append(el('span', 'chip ' + (x.faltan < 0 ? 'alerta' : 'prox'), x.faltan < 0 ? 'Vencido hace ' + (-x.faltan) + ' d' : 'En ' + x.faltan + ' d')); b.append(d);
+      if (f) b.addEventListener('click', function () { abrirAnimal(f); });
+      al.append(b);
+    });
+  }
+
+  // =============== Animales ===============
+  function dibujarFiltrosUb() {
+    var c = $('#f-ubic'); c.innerHTML = '';
+    var ub = []; A.forEach(function (f) { if (ub.indexOf(f.ubicacion) < 0) ub.push(f.ubicacion); });
+    ub.sort(function (a, b) { return ORDEN_UB(a) - ORDEN_UB(b) || a.localeCompare(b, 'es'); });
+    if (filtroUb && ub.indexOf(filtroUb) < 0) filtroUb = '';
+    [['', 'Todos (' + A.length + ')']].concat(ub.map(function (u) { return [u, u + ' (' + A.filter(function (f) { return f.ubicacion === u; }).length + ')']; })).forEach(function (o) {
+      var b = el('button', o[0] === filtroUb ? 'on' : '', o[1]); b.type = 'button'; b.setAttribute('aria-pressed', o[0] === filtroUb);
+      b.addEventListener('click', function () { filtroUb = o[0]; dibujarFiltrosUb(); dibujarLista(); });
+      c.append(b);
+    });
+  }
+  function dibujarLista() {
+    var q = norm($('#q').value), L = $('#lista'); L.innerHTML = '';
+    var res = A.filter(function (f) { return (!filtroUb || f.ubicacion === filtroUb) && (!q || (norm(f.nombre) + ' ' + norm(f.codigo)).indexOf(q) >= 0); });
+    if (!res.length) { L.append(el('div', 'vacio', 'Ningún animal coincide con "' + $('#q').value + '". Prueba con el código del arete.')); return; }
+    var grupo = null;
+    res.forEach(function (f) {
+      if (!filtroUb && f.ubicacion !== grupo) { grupo = f.ubicacion; L.append(el('div', 'grupo', grupo)); }
+      var b = el('button', 'fila'); b.type = 'button';
+      b.append(arete(f.codigo));
+      var m = el('div'); m.append(el('div', 'nom', f.nombre), el('div', 'sub', [f.nacimiento ? edad(f.nacimiento, D.hoy) : '', f.madre ? 'Hija de ' + cap(f.madre) : ''].filter(Boolean).join(' · ') || f.ubicacion));
+      b.append(m);
+      var d = el('div', 'der');
+      d.append(f.enProduccion ? el('span', 'chip prod', f1(f.ultimo.lt) + ' L') : el('span', 'chip', f.enFinca ? 'Seca' : f.pesajes.length ? 'Sin pesajes recientes' : 'Levante'));
+      b.append(d);
+      b.addEventListener('click', function () { abrirAnimal(f); });
+      L.append(b);
+    });
+  }
+
+  function abrirAnimal(f) {
+    vista.animal = f.id; irA('animales', true);
+    $('#buscador').hidden = true;
+    var F = $('#ficha'); F.hidden = false; F.innerHTML = '';
+    var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
+    v.append('Todos los animales'); v.addEventListener('click', cerrarAnimal); F.append(v);
+
+    var g = el('div', 'ficha'); F.append(g);
+    var foto = el('div', 'foto'); g.append(foto);
+    ponerImagen(foto, f.fotoId, ANCHO_FOTO, 'Foto de ' + f.nombre, 'Sin foto en la Hoja de vida');
+    foto.append(arete(f.codigo, true));
+    // como ponerImagen reemplaza el contenido, el arete se agrega cuando cargue
+    var re = new MutationObserver(function () { if (!$('.arete', foto)) foto.append(arete(f.codigo, true)); }); re.observe(foto, { childList: true });
+
+    var info = el('div'); g.append(info);
+    var tt = el('div', 'ftitulo'); tt.append(el('h1', null, f.nombre), el('span', 'chip ' + (f.enProduccion ? 'prod' : ''), f.estado)); info.append(tt);
+    var dl = el('dl', 'datos'); info.append(dl);
+    var campo = function (lab, val, nodo) { var w = el('div'); w.append(el('dt', null, lab)); var dd = el('dd'); if (nodo) dd.append(nodo); else dd.textContent = val || '—'; w.append(dd); dl.append(w); };
+    campo('Ubicación', f.ubicacion);
+    campo('Nacimiento', f.nacimiento ? fFecha(f.nacimiento) + (edad(f.nacimiento, D.hoy) ? ' (' + edad(f.nacimiento, D.hoy) + ')' : '') : '');
+    var madre = buscarPorNombre(f.madre);
+    if (madre && madre !== f) { var am = el('a', 'enl', cap(f.madre)); am.addEventListener('click', function () { abrirAnimal(madre); }); campo('Madre', '', am); } else campo('Madre', cap(f.madre));
+    var tPadre = torosIdx[norm(f.padre)];
+    if (tPadre) { var ap = el('a', 'enl', cap(f.padre)); ap.addEventListener('click', function () { abrirToro(tPadre); }); campo('Padre', '', ap); } else campo('Padre', cap(f.padre));
+    if (f.enFinca || f.r) campo('Estado (R)', f.r);
+    if (f.parto) campo('Último parto', fFecha(f.parto));
+    if (f.servicio) campo('Último servicio', fFecha(f.servicio));
+    if (f.posible) campo('Posible parto', fFecha(f.posible));
+    if (f.dg != null) campo('Días de gestación', f0(f.dg));
+    if (f.ultimo) campo('Último pesaje', f1(f.ultimo.lt) + ' L · ' + fCorta(f.ultimo.fecha));
+    if (f.obs) campo('Observación', f.obs);
+    var cr = criasDe(f);
+    if (cr.length) {
+      var w = el('div'); w.style.marginTop = '14px'; w.append(el('dt', 'sub', 'Crías registradas (' + cr.length + ')'));
+      var bx = el('div', 'crias'); cr.forEach(function (c) { var b = el('button', null, c.nombre + (c.nacimiento ? ' · ' + fCorta(c.nacimiento) : '')); b.type = 'button'; b.addEventListener('click', function () { abrirAnimal(c); }); bx.append(b); });
+      w.append(bx); info.append(w);
+    }
+
+    // producción
+    F.append(seccion(el('h2', null, 'Producción en cada pesaje')));
+    var pc = el('div', 'panel'); F.append(pc);
+    if (!f.pesajes.length) pc.append(el('div', 'vacio', f.enFinca ? 'No tiene pesajes con leche registrados.' : 'Todavía no está en producción.'));
+    else {
+      var finca = f.pesajes[f.pesajes.length - 1].finca;
+      pc.append(el('p', 'nota', 'Litros del día en cada pesaje de ' + finca + ', con los kg de concentrado debajo. "Sin registro" quiere decir que estaba seca o no se pesó.'));
+      var ch = el('div'); pc.append(ch);
+      var by = {}; f.pesajes.forEach(function (p) { if (p.finca === finca) by[p.fecha] = p; });
+      requestAnimationFrame(function () {
+        barras(ch, (fechasFinca[finca] || []).map(function (fe) { var p = by[fe]; return { v: p ? p.lt : null, label: fCorta(fe), sub: p ? (p.kgd == null ? '— kg' : f1(p.kgd) + ' kg') : '' }; }), { sub: true, h: 220, min: 10, titulo: 'Litros de ' + f.nombre + ' por pesaje' });
+      });
+      var t = el('table'), th = el('thead'), tr = el('tr');
+      [['Pesaje', ''], ['Litros', 'n'], ['KGD', 'n'], ['Días de lactancia', 'n hn'], ['R', '']].forEach(function (h) { tr.append(el('th', h[1], h[0])); });
+      th.append(tr); t.append(th); var tb = el('tbody');
+      f.pesajes.slice().reverse().forEach(function (p) {
+        var r = el('tr');
+        r.append(el('td', null, fCorta(p.fecha) + (p.finca !== finca ? ' · ' + p.finca : '')), el('td', 'n', f1(p.lt)), el('td', 'n', p.kgd == null ? '—' : f1(p.kgd)), el('td', 'n hn', p.diasLact == null ? '—' : f0(p.diasLact)), el('td', null, p.r || '—'));
+        tb.append(r);
+      });
+      t.append(tb); var tw = el('div'); tw.style.cssText = 'margin-top:10px;overflow-x:auto'; tw.append(t); pc.append(tw);
+    }
+
+    // padres
+    F.append(seccion(el('h2', null, 'Padres')));
+    var pg = el('div', 'padres'); F.append(pg);
+    pg.append(tarjetaMadre(f), tarjetaPadre(f));
+    window.scrollTo(0, 0);
+  }
+  function cerrarAnimal() { vista.animal = null; $('#ficha').hidden = true; $('#buscador').hidden = false; }
+
+  function tarjetaMadre(hijo) {
+    var c = el('div', 'panel padre'); c.append(el('h3', null, 'Madre'));
+    var a = buscarPorNombre(hijo.madre); if (a === hijo) a = null;
+    if (!hijo.madre) { c.append(el('div', 'vacio', 'No está registrada en la Hoja de vida.')); return c; }
+    var top = el('div', 'padre-top'), mi = el('div', 'mini'); top.append(mi);
+    var tx = el('div'); tx.append(el('div', 'pnom', cap(hijo.madre)));
+    if (a) {
+      ponerImagen(mi, a.fotoId, ANCHO_FOTO, 'Foto de ' + a.nombre);
+      tx.append(el('div', 'sub', [a.codigo ? 'Código ' + a.codigo : '', a.ubicacion, a.nacimiento ? edad(a.nacimiento, D.hoy) : ''].filter(Boolean).join(' · ')));
+      tx.append(el('span', 'chip ' + (a.enProduccion ? 'prod' : ''), a.estado));
+    } else { mi.textContent = 'Sin ficha'; tx.append(el('div', 'sub', 'No tiene ficha en la Hoja de vida.')); }
+    top.append(tx); c.append(top);
+    if (a) {
+      var dl = el('dl', 'datos');
+      var campo = function (lab, val) { if (!val) return; var w = el('div'); w.append(el('dt', null, lab), el('dd', null, val)); dl.append(w); };
+      campo('Hija de', [cap(a.madre), cap(a.padre)].filter(Boolean).join(' × '));
+      if (a.pesajes.length) {
+        var prom = a.pesajes.reduce(function (s, p) { return s + p.lt; }, 0) / a.pesajes.length, max = Math.max.apply(null, a.pesajes.map(function (p) { return p.lt; }));
+        campo('Último pesaje', f1(a.ultimo.lt) + ' L · ' + fCorta(a.ultimo.fecha));
+        campo('Promedio / máximo', f1(prom) + ' / ' + f1(max) + ' L');
+      }
+      c.append(dl);
+      if (a.pesajes.length) {
+        var ch = el('div'); ch.style.marginTop = '8px'; c.append(ch);
+        var fin = a.pesajes[a.pesajes.length - 1].finca, by = {}; a.pesajes.forEach(function (p) { if (p.finca === fin) by[p.fecha] = p; });
+        requestAnimationFrame(function () { barras(ch, (fechasFinca[fin] || []).map(function (fe) { var p = by[fe]; return { v: p ? p.lt : null, label: fCorta(fe), color: 'var(--rojo)' }; }), { h: 130, min: 10, titulo: 'Litros de ' + a.nombre }); });
+      }
+      var otras = criasDe(a).filter(function (x) { return x !== hijo; });
+      if (otras.length) { var w2 = el('div'); w2.style.marginTop = '8px'; w2.append(el('dt', 'sub', 'Otras crías de ' + a.nombre)); var bx = el('div', 'crias'); otras.forEach(function (x) { var b = el('button', null, x.nombre); b.type = 'button'; b.addEventListener('click', function () { abrirAnimal(x); }); bx.append(b); }); w2.append(bx); c.append(w2); }
+      var ver = el('button', 'btn', 'Abrir la ficha de ' + a.nombre); ver.type = 'button'; ver.style.marginTop = '12px'; ver.addEventListener('click', function () { abrirAnimal(a); }); c.append(ver);
+    }
+    return c;
+  }
+
+  function tarjetaPadre(hijo) {
+    var c = el('div', 'panel padre'); c.append(el('h3', null, 'Padre'));
+    if (!hijo.padre) { c.append(el('div', 'vacio', 'No está registrado en la Hoja de vida.')); return c; }
+    var t = torosIdx[norm(hijo.padre)];
+    var top = el('div', 'padre-top'), mi = el('div', 'mini'); top.append(mi);
+    var tx = el('div'); tx.append(el('div', 'pnom', t ? t.nombre : cap(hijo.padre)));
+    tx.append(el('div', 'sub', t ? [t.raza, t.tipo === 'Nacional' ? 'Toro nacional' : t.tipo ? 'Toro ' + t.tipo.toLowerCase() : 'Toro', t.codigo ? 'Código ' + t.codigo : ''].filter(Boolean).join(' · ') : 'Toro'));
+    top.append(tx); c.append(top);
+    var arch = t ? (t.archivos || []) : [];
+    if (arch.length) {
+      ponerImagen(mi, arch[0].id, ANCHO_FICHA, 'Ficha de ' + t.nombre);
+      var b = el('button', 'btn prim', 'Ver ficha técnica'); b.type = 'button'; b.addEventListener('click', function () { abrirVisor(t); }); c.append(b);
+    } else { mi.textContent = 'Toro'; c.append(el('div', 'sub', 'Sin ficha técnica registrada.')); }
+    if (t && t.notas && t.ficha !== 'Falta ficha') { var n = el('p', 'sub', t.notas); n.style.marginTop = '10px'; c.append(n); }
+    var hermanas = criasDeToro(t, hijo.padre).filter(function (x) { return x !== hijo; });
+    if (hermanas.length) { var w = el('div'); w.style.marginTop = '10px'; w.append(el('dt', 'sub', 'Otras crías de ' + (t ? t.nombre : cap(hijo.padre)) + ' (' + hermanas.length + ')')); var bx = el('div', 'crias'); hermanas.forEach(function (x) { var bb = el('button', null, x.nombre); bb.type = 'button'; bb.addEventListener('click', function () { abrirAnimal(x); }); bx.append(bb); }); w.append(bx); c.append(w); }
+    if (t) { var ir = el('a', 'enl', 'Ver todo sobre ' + t.nombre); ir.style.cssText = 'display:inline-block;margin-top:12px'; ir.addEventListener('click', function () { abrirToro(t); }); c.append(ir); }
+    return c;
+  }
+
+  // =============== Producción ===============
+  function dibujarProduccion() {
+    document.querySelectorAll('#p-finca button').forEach(function (b) { b.classList.toggle('on', b.dataset.f === fincaProd); b.setAttribute('aria-pressed', b.dataset.f === fincaProd); });
+    var ult = ultimoFinca[fincaProd];
+    $('#p-titulo').textContent = ult ? 'Pesaje del ' + fFecha(ult) + ' en ' + fincaProd : 'Todavía no hay pesajes de ' + fincaProd;
+    var filas = A.filter(function (f) { return f.enProduccion && f.ultimo.finca === fincaProd; }).map(function (f) {
+      var u = f.ultimo, prev = f.pesajes.length > 1 ? f.pesajes[f.pesajes.length - 2] : null;
+      return { f: f, nombre: f.nombre, codigo: f.codigo, lt: u.lt, ant: prev ? prev.lt : null, cambio: prev ? u.lt - prev.lt : null, kgd: u.kgd, lpk: u.kgd ? u.lt / u.kgd : null, dl: u.diasLact };
+    });
+    filas.sort(function (a, b) { var x = a[ordenProd.k], y = b[ordenProd.k]; if (x == null) return 1; if (y == null) return -1; return (typeof x === 'string' ? x.localeCompare(y, 'es') : x - y) * ordenProd.dir; });
+    var T = $('#t-prod'), th = T.tHead, tb = T.tBodies[0]; th.innerHTML = ''; tb.innerHTML = '';
+    var tr = el('tr');
+    [['nombre', 'Vaca', ''], ['lt', 'Litros', 'n'], ['ant', 'Anterior', 'n hn'], ['cambio', 'Cambio', 'n'], ['kgd', 'KGD', 'n'], ['lpk', 'L por kg', 'n hn'], ['dl', 'Días lact.', 'n hn']].forEach(function (c) {
+      var h = el('th', c[2]), b = el('button', null, c[1] + (ordenProd.k === c[0] ? (ordenProd.dir > 0 ? ' ▲' : ' ▼') : '')); b.type = 'button';
+      h.setAttribute('aria-sort', ordenProd.k === c[0] ? (ordenProd.dir > 0 ? 'ascending' : 'descending') : 'none');
+      b.addEventListener('click', function () { if (ordenProd.k === c[0]) ordenProd.dir = -ordenProd.dir; else { ordenProd.k = c[0]; ordenProd.dir = c[0] === 'nombre' ? 1 : -1; } dibujarProduccion(); });
+      h.append(b); tr.append(h);
+    });
+    th.append(tr);
+    if (!filas.length) { var r0 = el('tr'), td0 = el('td', 'vacio', 'Sin vacas en el último pesaje.'); td0.colSpan = 7; r0.append(td0); tb.append(r0); return; }
+    filas.forEach(function (x) {
+      var r = el('tr', 'clic'), tdN = el('td'); var wrap = el('span'); wrap.style.cssText = 'display:inline-flex;align-items:center;gap:10px'; var ar = arete(x.codigo); ar.style.transform = 'scale(.82)'; wrap.append(ar, el('b', null, x.nombre)); tdN.append(wrap);
+      r.append(tdN, el('td', 'n', f1(x.lt)), el('td', 'n hn', f1(x.ant)),
+        el('td', 'n ' + (x.cambio > 0 ? 'up' : x.cambio < 0 ? 'down' : ''), x.cambio == null ? '—' : (x.cambio > 0 ? '+' : '') + f1(x.cambio)),
+        el('td', 'n', x.kgd == null ? '—' : f1(x.kgd)), el('td', 'n hn', f1(x.lpk)), el('td', 'n hn', f0(x.dl)));
+      r.addEventListener('click', function () { abrirAnimal(x.f); });
+      tb.append(r);
+    });
+  }
+
+  // =============== Toros ===============
+  function torosConFicha() { return (D.toros || []).filter(function (t) { return (t.archivos || []).length || criasDeToro(t).length; }); }
+  function dibujarFiltrosRaza() {
+    var c = $('#f-raza'); c.innerHTML = '';
+    var T = torosConFicha(), rz = [];
+    T.forEach(function (t) { var r = t.raza || 'Sin raza'; if (rz.indexOf(r) < 0) rz.push(r); });
+    rz.sort(function (a, b) { return a.localeCompare(b, 'es'); });
+    if (filtroRaza && rz.indexOf(filtroRaza) < 0) filtroRaza = '';
+    [['', 'Todas (' + T.length + ')']].concat(rz.map(function (r) { return [r, r]; })).forEach(function (o) {
+      var b = el('button', o[0] === filtroRaza ? 'on' : '', o[1]); b.type = 'button'; b.setAttribute('aria-pressed', o[0] === filtroRaza);
+      b.addEventListener('click', function () { filtroRaza = o[0]; dibujarFiltrosRaza(); dibujarToros(); });
+      c.append(b);
+    });
+  }
+  function dibujarToros() {
+    var q = norm($('#q-toro').value), box = $('#toros'); box.innerHTML = '';
+    var T = torosConFicha().filter(function (t) { return (!filtroRaza || (t.raza || 'Sin raza') === filtroRaza) && (!q || norm([t.nombre].concat(t.otros || []).join(' ') + ' ' + t.codigo).indexOf(q) >= 0); })
+      .sort(function (a, b) { return criasDeToro(b).length - criasDeToro(a).length || a.nombre.localeCompare(b.nombre, 'es'); });
+    if (!T.length) { box.append(el('div', 'vacio', 'Ningún toro coincide con la búsqueda.')); return; }
+    T.forEach(function (t) {
+      var b = el('button', 'toro'); b.type = 'button';
+      var ft = el('div', 'tfoto'); b.append(ft);
+      var arch = t.archivos || [];
+      if (arch.length) ponerImagen(ft, arch[0].id, ANCHO_FICHA, 'Ficha de ' + t.nombre); else ft.textContent = 'Sin ficha técnica';
+      var tt = el('div', 'tt'); tt.append(el('b', null, t.nombre));
+      var n = criasDeToro(t).length;
+      tt.append(el('div', 'sub', [t.raza, n ? n + (n === 1 ? ' cría' : ' crías') : ''].filter(Boolean).join(' · ')));
+      b.append(tt);
+      b.addEventListener('click', function () { abrirToro(t); });
+      box.append(b);
+    });
+  }
+  function abrirToro(t) {
+    vista.toro = t.nombre; irA('toros', true);
+    $('#toros-lista').hidden = true;
+    var V = $('#toro'); V.hidden = false; V.innerHTML = '';
+    var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
+    v.append('Todos los toros'); v.addEventListener('click', cerrarToro); V.append(v);
+    var g = el('div', 'ficha'); V.append(g);
+    var arch = t.archivos || [];
+    var foto = el('div', 'foto'); foto.style.aspectRatio = '3/4'; g.append(foto);
+    if (arch.length) { ponerImagen(foto, arch[0].id, ANCHO_FICHA, 'Ficha de ' + t.nombre); foto.style.cursor = 'zoom-in'; foto.addEventListener('click', function () { abrirVisor(t); }); }
+    else foto.textContent = 'Sin ficha técnica registrada';
+    var info = el('div'); g.append(info);
+    var tt = el('div', 'ftitulo'); tt.append(el('h1', null, t.nombre)); if (t.tipo) tt.append(el('span', 'chip', t.tipo === 'Nacional' ? 'Toro nacional' : 'Importado')); info.append(tt);
+    var dl = el('dl', 'datos'); info.append(dl);
+    var campo = function (lab, val) { if (!val) return; var w = el('div'); w.append(el('dt', null, lab), el('dd', null, val)); dl.append(w); };
+    campo('Raza', t.raza); campo('Código', t.codigo); campo('Ficha', t.ficha && t.ficha !== 'Falta ficha' ? t.ficha : ''); campo('Pedigrí', t.notas && t.ficha !== 'Falta ficha' ? t.notas : '');
+    if (arch.length) {
+      var pw = el('div'); pw.style.marginTop = '14px'; pw.append(el('dt', 'sub', 'Ficha técnica · ' + arch.length + (arch.length === 1 ? ' página' : ' páginas')));
+      var pags = el('div', 'paginas');
+      arch.forEach(function (a, i) { var b = el('button'); b.type = 'button'; b.setAttribute('aria-label', 'Página ' + (i + 1)); ponerImagen(b, a.id, ANCHO_FICHA, 'Página ' + (i + 1)); b.addEventListener('click', function () { abrirVisor(t, i); }); pags.append(b); });
+      pw.append(pags); info.append(pw);
+      var vb = el('button', 'btn prim', 'Ver ficha técnica'); vb.type = 'button'; vb.style.marginTop = '12px'; vb.addEventListener('click', function () { abrirVisor(t); }); info.append(vb);
+    }
+    var cr = criasDeToro(t);
+    V.append(seccion(el('h2', null, cr.length ? 'Crías en GANADO (' + cr.length + ')' : 'Crías en GANADO')));
+    var L = el('div', 'lista'); V.append(L);
+    if (!cr.length) L.append(el('div', 'vacio', 'No hay animales registrados con este padre.'));
+    cr.forEach(function (f) {
+      var b = el('button', 'fila'); b.type = 'button'; b.append(arete(f.codigo));
+      var m = el('div'); m.append(el('div', 'nom', f.nombre), el('div', 'sub', [f.ubicacion, f.nacimiento ? edad(f.nacimiento, D.hoy) : '', f.madre ? 'Madre ' + cap(f.madre) : ''].filter(Boolean).join(' · '))); b.append(m);
+      var d = el('div', 'der'); d.append(f.enProduccion ? el('span', 'chip prod', f1(f.ultimo.lt) + ' L') : el('span', 'chip', f.enFinca ? 'Seca' : 'Levante')); b.append(d);
+      b.addEventListener('click', function () { abrirAnimal(f); }); L.append(b);
+    });
+    window.scrollTo(0, 0);
+  }
+  function cerrarToro() { vista.toro = null; $('#toro').hidden = true; $('#toros-lista').hidden = false; }
+
+  // =============== visor ===============
+  var ultimoFoco = null;
+  function abrirVisor(t, desde) {
+    ultimoFoco = document.activeElement;
+    $('#visor-tit').textContent = 'Ficha técnica de ' + t.nombre;
+    var c = $('#visor-c'); c.innerHTML = '';
+    (t.archivos || []).forEach(function (a, i) { var p = el('div', 'pag'); c.append(p); ponerImagen(p, a.id, ANCHO_FICHA, 'Ficha de ' + t.nombre + ', página ' + (i + 1)); });
+    $('#visor').hidden = false; document.body.style.overflow = 'hidden'; $('#visor-x').focus();
+    if (desde) setTimeout(function () { var p = c.children[desde]; if (p) p.scrollIntoView(); }, 50);
+  }
+  function cerrarVisor() { $('#visor').hidden = true; $('#visor-c').innerHTML = ''; document.body.style.overflow = ''; if (ultimoFoco) ultimoFoco.focus(); }
+  $('#visor-x').addEventListener('click', cerrarVisor);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#visor').hidden) cerrarVisor(); });
+
+  // =============== navegación ===============
+  function irA(tab, mantener) {
+    vista.tab = tab;
+    document.querySelectorAll('#nav button').forEach(function (b) { var on = b.dataset.tab === tab; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    ['resumen', 'animales', 'produccion', 'toros'].forEach(function (x) { $('#tab-' + x).hidden = x !== tab || !D; });
+    if (!mantener) { if (tab === 'animales') cerrarAnimal(); if (tab === 'toros') cerrarToro(); }
+    if (tab === 'resumen' && D) dibujarResumen();
+    if (!mantener) window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('#nav button').forEach(function (b) { b.addEventListener('click', function () { irA(b.dataset.tab); }); });
+  document.querySelectorAll('#p-finca button').forEach(function (b) { b.addEventListener('click', function () { fincaProd = b.dataset.f; dibujarProduccion(); }); });
+  $('#q').addEventListener('input', dibujarLista);
+  $('#q-toro').addEventListener('input', dibujarToros);
+  $('#btn-ref').addEventListener('click', function () { cargar(true); });
+
+  function dibujarTodo() {
+    dibujarFiltrosUb(); dibujarLista(); dibujarProduccion(); dibujarFiltrosRaza(); dibujarToros();
+    var animal = vista.animal && porId[vista.animal], toro = vista.toro && D.toros && D.toros.filter(function (t) { return t.nombre === vista.toro; })[0];
+    irA(vista.tab, true);
+    if (vista.tab === 'animales' && animal) abrirAnimal(animal);
+    else if (vista.tab === 'toros' && toro) abrirToro(toro);
+  }
+
+  // altura de la cabecera (para lo que queda fijo debajo)
+  function medirCab() { document.documentElement.style.setProperty('--cab-h', $('#cab').offsetHeight + 'px'); }
+  window.addEventListener('resize', medirCab); medirCab();
+  var anchoPrev = window.innerWidth, rt;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (!D || window.innerWidth === anchoPrev) return; anchoPrev = window.innerWidth; if (vista.tab === 'resumen') dibujarResumen(); }, 250); });
+  window.addEventListener('online', function () { if (D) cargar(true); });
+  window.addEventListener('offline', function () { if (D && !EN_GAS) estadoRed('Sin conexión · datos del ' + fechaHora(D.guardado), false); });
+
+  // app instalable: guarda la página para abrirla sin internet
+  if (!EN_GAS && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  }
+
+  cargar();
+})();
+</script>
+</body>
+</html>
