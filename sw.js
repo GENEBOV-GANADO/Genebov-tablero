@@ -1,6 +1,8 @@
 /* Ganado — guarda la app para abrirla sin internet.
    Los datos, fotos y fichas los guarda la página en el celular (IndexedDB). */
-var VERSION = 'genebov-v3';
+// Avisos (notificaciones) de OneSignal: se manejan en este mismo archivo.
+try { importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js'); } catch (e) {}
+var VERSION = 'genebov-v5';
 var BASICOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
@@ -22,6 +24,14 @@ self.addEventListener('fetch', function (e) {
   var mismaApp = u.origin === self.location.origin;
   var fuentes = u.hostname === 'fonts.googleapis.com' || u.hostname === 'fonts.gstatic.com';
   if (!mismaApp && !fuentes) return;
+  // La página: primero internet (para ver siempre la última versión), y sin internet lo guardado.
+  if (req.mode === 'navigate') {
+    e.respondWith(fetch(req).then(function (r) {
+      if (r && r.ok) { var copia = r.clone(); caches.open(VERSION).then(function (c) { c.put('./index.html', copia); }); }
+      return r;
+    }).catch(function () { return caches.match('./index.html', { ignoreSearch: true }); }));
+    return;
+  }
   // Primero lo guardado (abre al instante y sin internet); en segundo plano se actualiza.
   e.respondWith(caches.open(VERSION).then(function (c) {
     return c.match(req, { ignoreSearch: mismaApp }).then(function (guardado) {

@@ -187,6 +187,34 @@
   .acceso input{width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;border:1px solid var(--linea);background:var(--papel);color:var(--tinta);margin:12px 0}
   .error{color:var(--rojo);font-size:14px}
 
+  .avisos-push{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .avisos-push svg{color:var(--rojo);flex:0 0 26px}
+  .avisos-push .ap-txt{flex:1;min-width:180px;display:flex;flex-direction:column;font-size:13.5px;color:var(--gris)}
+  .avisos-push .ap-txt b{color:var(--tinta);font-size:15px}
+  .ver-vacas{display:flex;width:100%;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 0 0;border:0;border-top:1px solid var(--linea);background:none;color:var(--rojo);font-weight:700;font-size:14px}
+  #tab-resumen.viendo-vaca > :not(#porvaca){display:none !important}
+  .pv-seg{display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:12px;background:var(--suave);margin:4px 0 14px}
+  .pv-seg button{height:38px;border:0;border-radius:10px;background:none;font-weight:700;font-size:14px;color:var(--gris)}
+  .pv-seg button.on{background:var(--papel);color:var(--tinta);box-shadow:0 1px 2px rgba(20,41,75,.15)}
+  .pv-dona{position:relative;width:280px;height:280px;margin:0 auto}
+  .pv-dona svg path{cursor:pointer}
+  .pv-centro{position:absolute;inset:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+  .pv-centro .n{font-family:var(--titulo);font-weight:700;font-size:17px;line-height:1.15;margin-top:6px}
+  .pv-centro .l{font-family:var(--titulo);font-weight:700;font-size:26px;color:var(--rojo);line-height:1.1}
+  .pv-centro .p{font-size:12px;font-weight:700;color:var(--gris)}
+  .pv-fila{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--linea);background:var(--papel);text-align:left}
+  .pv-fila:last-child{border-bottom:0}
+  .pv-fila.on{background:rgba(198,40,50,.09)}
+  .pv-fila .pu{width:22px;font-size:12px;font-weight:700;color:var(--gris);text-align:right}
+  .pv-fila .co{width:10px;height:10px;border-radius:3px;flex:0 0 10px}
+  .pv-fila .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+  .pv-fila .bar{height:5px;border-radius:3px;background:var(--suave);overflow:hidden}
+  .pv-fila .bar i{display:block;height:100%;border-radius:3px}
+  .pv-fila .der{text-align:right;min-width:58px}
+  .pv-fila .der b{display:block;font-size:15px}
+  .pv-fila .der span{font-size:11.5px;color:var(--gris)}
+  .btn-campana{position:relative}
+  .btn-campana .pt{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--rojo)}
   /* ---------- registrar (fotos y pesaje) ---------- */
   .oculto{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
   label.btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative}
@@ -234,6 +262,9 @@
       <div style="min-width:0"><b>Ganado</b><span class="estado-red" id="red"><i class="punto" id="punto"></i><span id="red-txt">Cargando…</span></span></div>
     </div>
     <div class="sync">
+      <button class="btn-ico btn-campana" id="btn-campana" type="button" aria-label="Avisos en este celular" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/></svg><i class="pt" id="campana-pt" hidden></i>
+      </button>
       <button class="btn-ico" id="btn-ref" type="button" aria-label="Actualizar datos">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>
       </button>
@@ -263,6 +294,12 @@
   </div>
 
   <section id="tab-resumen" hidden>
+    <div id="porvaca" hidden></div>
+    <div class="panel avisos-push" id="avisos-push" hidden>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"></path><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"></path></svg>
+      <div class="ap-txt"><b>Avisos en este celular</b><span id="avisos-push-txt">Recibe el aviso de cada pesaje y de cada preparto.</span></div>
+      <button class="btn prim" id="avisos-push-btn" type="button">Activar avisos</button>
+    </div>
     <div class="franja" id="franja"></div>
     <div class="seccion"><h2>Litros por pesaje</h2></div>
     <div class="graficas" id="graficas"></div>
@@ -707,6 +744,9 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
       if (a) { var dl = u.lt - a.lt, d2 = el('div', 'det'); d2.append(el('span', dl > 0 ? 'up' : dl < 0 ? 'down' : '', (dl > 0 ? '+' : '') + f0(dl) + ' L'), document.createTextNode(' frente al ' + fCorta(a.fecha))); w.append(d2); }
       fr.append(w);
       var p = el('div', 'panel'); p.append(el('h3', null, finca)); var ch = el('div'); p.append(ch); gr.append(p);
+      var gv = el('button', 'ver-vacas', 'Gráfico por vaca'); gv.type = 'button';
+      gv.insertAdjacentHTML('beforeend', '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>');
+      gv.addEventListener('click', function () { abrirPorVaca(finca); }); p.append(gv);
       requestAnimationFrame(function () {
         barras(ch, rs.map(function (r) { return { v: r.lt, top: f0(r.lt), label: fCorta(r.fecha), sub: r.vacas + ' vacas', color: finca === 'Cartago' ? 'var(--azul-2)' : 'var(--rojo)' }; }), { sub: true, h: 210, titulo: 'Litros por pesaje en ' + finca });
       });
@@ -1287,12 +1327,153 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     p.append(b); W.append(p);
   }
 
+
+
+  // =============== gráfico por vaca (pastel) ===============
+  var PV = { finca: 'Cartago', sel: 0 };
+  function abrirPorVaca(finca) { PV.finca = finca; PV.sel = 0; $('#tab-resumen').classList.add('viendo-vaca'); $('#porvaca').hidden = false; dibujarPorVaca(); window.scrollTo(0, 0); }
+  function cerrarPorVaca() { $('#tab-resumen').classList.remove('viendo-vaca'); $('#porvaca').hidden = true; window.scrollTo(0, 0); }
+  function mezclaColor(a, b, t) {
+    var x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16), o = '#';
+    [16, 8, 0].forEach(function (s) { var c = Math.round(((x >> s) & 255) * (1 - t) + ((y >> s) & 255) * t); o += ('0' + c.toString(16)).slice(-2); });
+    return o;
+  }
+  function arcoDona(cx, cy, R, r, a0, a1) {
+    var p = function (rad, a) { return (cx + rad * Math.sin(a)).toFixed(2) + ' ' + (cy - rad * Math.cos(a)).toFixed(2); };
+    var g = a1 - a0 > Math.PI ? 1 : 0;
+    return 'M' + p(R, a0) + ' A' + R + ' ' + R + ' 0 ' + g + ' 1 ' + p(R, a1) + ' L' + p(r, a1) + ' A' + r + ' ' + r + ' 0 ' + g + ' 0 ' + p(r, a0) + ' Z';
+  }
+  function dibujarPorVaca() {
+    var W = $('#porvaca'); W.innerHTML = '';
+    var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
+    v.append('Resumen'); v.addEventListener('click', cerrarPorVaca); W.append(v);
+    var fecha = ultimoFinca[PV.finca];
+    var L = (D.pesajes || []).filter(function (p) { return p.finca === PV.finca && p.fecha === fecha; }).sort(function (a, b) { return b.lt - a.lt; });
+    var tit = el('div'); tit.append(el('h1', 'pz-tit', 'Producción por vaca'));
+    var st = el('p', 'nota', PV.finca + (fecha ? ' · pesaje del ' + fFecha(fecha) : '')); st.style.marginTop = '-8px'; tit.append(st); W.append(tit);
+    var seg = el('div', 'pv-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Finca');
+    ['Cartago', 'La Victoria'].forEach(function (fi) { var b = el('button', PV.finca === fi ? 'on' : '', fi); b.type = 'button'; b.setAttribute('aria-pressed', PV.finca === fi); b.addEventListener('click', function () { PV.finca = fi; PV.sel = 0; dibujarPorVaca(); }); seg.append(b); });
+    W.append(seg);
+    if (!L.length) { W.append(el('div', 'panel vacio', 'No hay pesajes de ' + PV.finca + ' todavía.')); return; }
+    var n = L.length, total = L.reduce(function (s, p) { return s + p.lt; }, 0), max = L[0].lt, sel = Math.min(PV.sel, n - 1);
+    var color = function (i) { return i === sel ? '#C62832' : mezclaColor('#14294B', '#BFCCE2', n > 1 ? i / (n - 1) : 0); };
+    var pct = function (x) { return f1(x / total * 100) + ' %'; };
+    var elegir = function (i) { return function () { PV.sel = i; dibujarPorVaca(); }; };
+    var panel = el('div', 'panel'); var dona = el('div', 'pv-dona');
+    var ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 280 280'); svg.setAttribute('width', '280'); svg.setAttribute('height', '280'); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Pastel de producción de ' + n + ' vacas en ' + PV.finca + ', total ' + f0(total) + ' litros');
+    var a = 0;
+    L.forEach(function (p, i) {
+      var a0 = a, a1 = a + p.lt / total * Math.PI * 2; a = a1;
+      var path = document.createElementNS(ns, 'path');
+      path.setAttribute('d', arcoDona(140, 140, i === sel ? 138 : 130, 80, a0, Math.min(a1, a0 + Math.PI * 2 - 0.0001)));
+      path.setAttribute('fill', color(i)); path.setAttribute('stroke', '#FFFFFF'); path.setAttribute('stroke-width', '1');
+      var t = document.createElementNS(ns, 'title'); t.textContent = p.nombre + ': ' + f1(p.lt) + ' L'; path.appendChild(t);
+      path.addEventListener('click', elegir(i)); svg.appendChild(path);
+    });
+    dona.append(svg);
+    var s = L[sel], c = el('div', 'pv-centro'); c.append(arete(s.codigo), el('span', 'n', s.nombre), el('span', 'l', f1(s.lt) + ' L'), el('span', 'p', pct(s.lt) + ' del total'));
+    dona.append(c); panel.append(dona);
+    var nt = el('p', 'nota', 'Cada tajada es una vaca. Toca una tajada o una fila para verla.'); nt.style.cssText = 'text-align:center;margin:10px 0 0'; panel.append(nt);
+    W.append(panel);
+    var h2 = seccion(el('h2', null, n + ' vacas')); h2.append(el('span', 'sub', f0(total) + ' L en total')); W.append(h2);
+    var lista = el('div', 'lista');
+    L.forEach(function (p, i) {
+      var b = el('button', 'pv-fila' + (i === sel ? ' on' : '')); b.type = 'button'; b.setAttribute('aria-pressed', i === sel);
+      var co = el('span', 'co'); co.style.background = color(i);
+      var mid = el('span', 'mid'); var nm = el('span'); nm.append(el('b', null, p.nombre)); if (p.codigo) { var cs = el('span', 'sub', ' ' + p.codigo); nm.append(cs); }
+      var bar = el('span', 'bar'), bi = el('i'); bi.style.cssText = 'width:' + Math.round(p.lt / max * 100) + '%;background:' + color(i); bar.append(bi); mid.append(nm, bar);
+      var der = el('span', 'der'); der.append(el('b', null, f1(p.lt) + ' L'), el('span', null, pct(p.lt)));
+      b.append(el('span', 'pu', String(i + 1)), co, mid, der);
+      b.addEventListener('click', function () { PV.sel = i; dibujarPorVaca(); var d = $('#porvaca .pv-dona'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+      lista.append(b);
+    });
+    W.append(lista);
+  }
+  // =============== avisos en el celular (OneSignal) ===============
+  // El script de GANADO (avisos.gs) manda los avisos; aquí solo se pide
+  // permiso en este celular y se abre la pantalla que trae cada aviso.
+  var ONESIGNAL_APP_ID = '4d7d11ff-45c8-49a9-8085-1e6adcf178d4';
+  var esIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var instalada = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  var pushListo = false;
+  function iniciarPush() {
+    if (EN_GAS || location.protocol !== 'https:' || !('serviceWorker' in navigator)) return;
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    var s = document.createElement('script'); s.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js'; s.defer = true; document.head.appendChild(s);
+    var carpeta = location.pathname.replace(/[^/]*$/, '');
+    OneSignalDeferred.push(function (OneSignal) {
+      return OneSignal.init({
+        appId: ONESIGNAL_APP_ID,
+        serviceWorkerPath: carpeta.replace(/^\//, '') + 'sw.js',
+        serviceWorkerParam: { scope: carpeta },
+        notifyButton: { enable: false },
+        allowLocalhostAsSecureOrigin: true
+      }).then(function () {
+        pushListo = true; estadoPush();
+        OneSignal.User.PushSubscription.addEventListener('change', estadoPush);
+      });
+    });
+  }
+  function estadoPush() {
+    var box = $('#avisos-push'), txt = $('#avisos-push-txt'), btn = $('#avisos-push-btn'), cam = $('#btn-campana'), pt = $('#campana-pt');
+    if (EN_GAS) { box.hidden = true; cam.hidden = true; return; }
+    cam.hidden = false;
+    var activo = !!(pushListo && window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription.optedIn);
+    pt.hidden = activo;
+    cam.setAttribute('aria-label', activo ? 'Avisos activados en este celular' : 'Activar avisos en este celular');
+    if (activo || ocultarBanner) { box.hidden = true; return; }
+    box.hidden = false; btn.hidden = false; btn.disabled = false;
+    if (esIOS && !instalada) {
+      btn.hidden = true;
+      txt.textContent = 'Para recibir avisos en el iPhone, instala la app: en Safari toca Compartir › Agregar a inicio, y ábrela desde el ícono de la vaca.';
+    } else if (!('Notification' in window)) {
+      btn.hidden = true; txt.textContent = 'Este navegador no permite avisos. Abre la app desde el ícono de la vaca.';
+    } else if (Notification.permission === 'denied') {
+      btn.hidden = true; txt.textContent = 'Los avisos están bloqueados. Actívalos en Ajustes › Notificaciones › Ganado y vuelve a abrir la app.';
+    } else txt.textContent = 'Recibe el aviso de cada pesaje y de cada preparto.';
+  }
+  var ocultarBanner = false;
+  $('#btn-campana').addEventListener('click', function () {
+    var activo = pushListo && window.OneSignal && OneSignal.User.PushSubscription.optedIn;
+    if (activo) { aviso('Los avisos ya están activados en este celular.', 'bien'); return; }
+    ocultarBanner = false; irA('resumen'); estadoPush(); $('#avisos-push').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  $('#avisos-push-btn').addEventListener('click', function () {
+    var btn = this; btn.disabled = true; btn.textContent = 'Activando…';
+    var listo = false;
+    setTimeout(function () { if (!listo && !pushListo) { btn.disabled = false; btn.textContent = 'Activar avisos'; aviso('No se pudo conectar con el servicio de avisos. Revisa el internet e inténtalo otra vez.', 'mal'); } }, 15000);
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(function (OneSignal) {
+      return OneSignal.Notifications.requestPermission().then(function () { return OneSignal.User.PushSubscription.optIn(); })
+        .then(function () { listo = true; btn.textContent = 'Activar avisos'; estadoPush(); if (OneSignal.User.PushSubscription.optedIn) aviso('Avisos activados en este celular.', 'bien'); else btn.disabled = false; })
+        .catch(function (e) { listo = true; btn.disabled = false; btn.textContent = 'Activar avisos'; aviso('No se pudieron activar los avisos: ' + (e && e.message || e), 'mal'); });
+    });
+  });
+
+  // Al tocar un aviso se abre la app con #pesaje o #animal=Finca|nombre
+  var destino = location.hash;
+  function irADestino() {
+    if (!destino || !D) return;
+    var d = decodeURIComponent(destino.replace(/^#/, '')); destino = '';
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    if (d === 'pesaje') { irA('produccion'); abrirPesaje(); return; }
+    if (d.indexOf('animal=') === 0) {
+      var id = d.slice(7), f = porId[id];
+      if (!f) { var n = id.split('|').pop(); f = A.filter(function (x) { return low(x.nombre) === low(n); })[0]; }
+      if (f) abrirAnimal(f);
+    }
+  }
+  window.addEventListener('hashchange', function () { if (location.hash) { destino = location.hash; irADestino(); } });
+
   // =============== navegación ===============
   function irA(tab, mantener) {
     vista.tab = tab;
     document.querySelectorAll('#nav button').forEach(function (b) { var on = b.dataset.tab === tab; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     ['resumen', 'animales', 'produccion', 'toros'].forEach(function (x) { $('#tab-' + x).hidden = x !== tab || !D; });
     if (!mantener) { if (tab === 'animales') cerrarAnimal(); if (tab === 'toros') cerrarToro(); }
+    if (tab === 'resumen' && !mantener) cerrarPorVaca();
     if (tab === 'resumen' && D) dibujarResumen();
     if (!mantener) window.scrollTo(0, 0);
   }
@@ -1309,6 +1490,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     irA(vista.tab, true);
     if (vista.tab === 'animales' && animal) abrirAnimal(animal);
     else if (vista.tab === 'toros' && toro) abrirToro(toro);
+    irADestino();
   }
 
   // altura de la cabecera (para lo que queda fijo debajo)
@@ -1322,8 +1504,9 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
 
   // app instalable: guarda la página para abrirla sin internet
   if (!EN_GAS && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
+    navigator.serviceWorker.getRegistration().then(function (r) { if (!r) return navigator.serviceWorker.register('sw.js'); }).catch(function () {});
   }
+  iniciarPush(); estadoPush();
 
   cargar();
 })();
