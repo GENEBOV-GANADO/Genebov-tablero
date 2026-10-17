@@ -205,6 +205,10 @@
   .pv-fila{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--linea);background:var(--papel);text-align:left}
   .pv-fila:last-child{border-bottom:0}
   .pv-fila.on{background:rgba(198,40,50,.09)}
+  .pv-fila{cursor:pointer}
+  .pv-nom{border:0;background:none;padding:2px 0;font:inherit;font-weight:700;font-size:15px;color:var(--tinta);text-decoration:underline;text-decoration-color:var(--rojo);text-underline-offset:3px;cursor:pointer}
+  .pv-nom[disabled]{text-decoration:none;cursor:default}
+  .pv-ver{display:block;margin:14px auto 0}
   .pv-fila .pu{width:22px;font-size:12px;font-weight:700;color:var(--gris);text-align:right}
   .pv-fila .co{width:10px;height:10px;border-radius:3px;flex:0 0 10px}
   .pv-fila .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
@@ -1343,6 +1347,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     var g = a1 - a0 > Math.PI ? 1 : 0;
     return 'M' + p(R, a0) + ' A' + R + ' ' + R + ' 0 ' + g + ' 1 ' + p(R, a1) + ' L' + p(r, a1) + ' A' + r + ' ' + r + ' 0 ' + g + ' 0 ' + p(r, a0) + ' Z';
   }
+  function vacaDe(p) { return porId[p.finca + '|' + low(p.nombre)] || buscarPorNombre(p.nombre); }
   function dibujarPorVaca() {
     var W = $('#porvaca'); W.innerHTML = '';
     var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
@@ -1375,14 +1380,19 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     dona.append(svg);
     var s = L[sel], c = el('div', 'pv-centro'); c.append(arete(s.codigo), el('span', 'n', s.nombre), el('span', 'l', f1(s.lt) + ' L'), el('span', 'p', pct(s.lt) + ' del total'));
     dona.append(c); panel.append(dona);
-    var nt = el('p', 'nota', 'Cada tajada es una vaca. Toca una tajada o una fila para verla.'); nt.style.cssText = 'text-align:center;margin:10px 0 0'; panel.append(nt);
+    var vs = vacaDe(s);
+    if (vs) { var vf = el('button', 'btn prim pv-ver', 'Ver ficha de ' + s.nombre); vf.type = 'button'; vf.addEventListener('click', function () { abrirAnimal(vs); }); panel.append(vf); }
+    var nt = el('p', 'nota', 'Cada color representa la producción de un animal. Selecciona uno en el gráfico o en la lista para ver su detalle.'); nt.style.cssText = 'text-align:center;margin:10px 0 0'; panel.append(nt);
     W.append(panel);
     var h2 = seccion(el('h2', null, n + ' vacas')); h2.append(el('span', 'sub', f0(total) + ' L en total')); W.append(h2);
     var lista = el('div', 'lista');
     L.forEach(function (p, i) {
-      var b = el('button', 'pv-fila' + (i === sel ? ' on' : '')); b.type = 'button'; b.setAttribute('aria-pressed', i === sel);
+      var b = el('div', 'pv-fila' + (i === sel ? ' on' : ''));
       var co = el('span', 'co'); co.style.background = color(i);
-      var mid = el('span', 'mid'); var nm = el('span'); nm.append(el('b', null, p.nombre)); if (p.codigo) { var cs = el('span', 'sub', ' ' + p.codigo); nm.append(cs); }
+      var mid = el('span', 'mid'); var nm = el('span');
+      var vaca = vacaDe(p), bn = el('button', 'pv-nom', p.nombre); bn.type = 'button';
+      if (vaca) { bn.setAttribute('aria-label', 'Abrir la ficha de ' + p.nombre); bn.addEventListener('click', function (ev) { ev.stopPropagation(); abrirAnimal(vaca); }); } else bn.disabled = true;
+      nm.append(bn); if (p.codigo) { var cs = el('span', 'sub', ' ' + p.codigo); nm.append(cs); }
       var bar = el('span', 'bar'), bi = el('i'); bi.style.cssText = 'width:' + Math.round(p.lt / max * 100) + '%;background:' + color(i); bar.append(bi); mid.append(nm, bar);
       var der = el('span', 'der'); der.append(el('b', null, f1(p.lt) + ' L'), el('span', null, pct(p.lt)));
       b.append(el('span', 'pu', String(i + 1)), co, mid, der);
