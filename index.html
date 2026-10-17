@@ -219,6 +219,9 @@
   .pv-fila .der span{font-size:11.5px;color:var(--gris)}
   .btn-campana{position:relative}
   .btn-campana .pt{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--rojo)}
+  .gesto-atras{position:fixed;left:6px;top:50%;z-index:60;width:44px;height:44px;border-radius:50%;background:var(--azul);color:#fff;display:grid;place-items:center;opacity:0;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:background .15s}
+  .gesto-atras.listo{background:var(--rojo)}
+  @media (prefers-reduced-motion: reduce){ #main{transform:none !important} }
   /* ---------- registrar (fotos y pesaje) ---------- */
   .oculto{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
   label.btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative}
@@ -810,11 +813,12 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   }
 
   function abrirAnimal(f) {
+    apilar();
     vista.animal = f.id; irA('animales', true);
     $('#buscador').hidden = true;
     var F = $('#ficha'); F.hidden = false; F.innerHTML = '';
     var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
-    v.append('Todos los animales'); v.addEventListener('click', cerrarAnimal); F.append(v);
+    var pa = pila[pila.length - 1]; v.append(pa && (pa.tab !== 'animales' || pa.animal) ? 'Volver' : 'Todos los animales'); v.addEventListener('click', atras); F.append(v);
 
     var g = el('div', 'ficha'); F.append(g);
     var foto = el('div', 'foto'); g.append(foto);
@@ -996,11 +1000,12 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     });
   }
   function abrirToro(t) {
+    apilar();
     vista.toro = t.nombre; irA('toros', true);
     $('#toros-lista').hidden = true;
     var V = $('#toro'); V.hidden = false; V.innerHTML = '';
     var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
-    v.append('Todos los toros'); v.addEventListener('click', cerrarToro); V.append(v);
+    var pt = pila[pila.length - 1]; v.append(pt && (pt.tab !== 'toros' || pt.toro) ? 'Volver' : 'Todos los toros'); v.addEventListener('click', atras); V.append(v);
     var g = el('div', 'ficha'); V.append(g);
     var arch = t.archivos || [];
     var foto = el('div', 'foto'); foto.style.aspectRatio = '3/4'; g.append(foto);
@@ -1172,6 +1177,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   function fechaHoja(i) { var p = i.split('-'); return (+p[2]) + '/' + (+p[1]) + '/' + p[0].slice(2); }
   function guardarBorrador() { try { if (P) localStorage.setItem('ganado_pesaje', JSON.stringify({ finca: P.finca, fecha: P.fecha, lecturas: P.lecturas, animales: P.animales, paso: P.paso === 'revisar' ? 'revisar' : 'fotos' })); else localStorage.removeItem('ganado_pesaje'); } catch (e) {} }
   function abrirPesaje() {
+    apilar();
     $('#prod-vista').hidden = true; $('#pesaje').hidden = false;
     if (!P) { var b = null; try { b = JSON.parse(localStorage.getItem('ganado_pesaje') || 'null'); } catch (e) {} P = b ? { finca: b.finca, fecha: b.fecha, lecturas: b.lecturas || [], animales: b.animales || [], fotos: [], paso: b.paso } : { finca: fincaProd, fecha: hoyIso(), fotos: [], lecturas: [], animales: [], paso: 'fotos' }; }
     dibujarPesaje(); window.scrollTo(0, 0);
@@ -1183,7 +1189,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   function dibujarPesaje() {
     var W = $('#pesaje'); W.innerHTML = '';
     var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
-    v.append('Producción'); v.addEventListener('click', function () { cerrarPesaje(false); }); W.append(v);
+    v.append('Producción'); v.addEventListener('click', atras); W.append(v);
     W.append(el('h1', 'pz-tit', 'Registrar pesaje de leche'));
     if (P.paso === 'listo') return dibujarListo(W);
 
@@ -1335,7 +1341,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
 
   // =============== gráfico por vaca (pastel) ===============
   var PV = { finca: 'Cartago', sel: 0 };
-  function abrirPorVaca(finca) { PV.finca = finca; PV.sel = 0; $('#tab-resumen').classList.add('viendo-vaca'); $('#porvaca').hidden = false; dibujarPorVaca(); window.scrollTo(0, 0); }
+  function abrirPorVaca(finca) { apilar(); PV.finca = finca; PV.sel = 0; $('#tab-resumen').classList.add('viendo-vaca'); $('#porvaca').hidden = false; dibujarPorVaca(); window.scrollTo(0, 0); }
   function cerrarPorVaca() { $('#tab-resumen').classList.remove('viendo-vaca'); $('#porvaca').hidden = true; window.scrollTo(0, 0); }
   function mezclaColor(a, b, t) {
     var x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16), o = '#';
@@ -1351,7 +1357,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   function dibujarPorVaca() {
     var W = $('#porvaca'); W.innerHTML = '';
     var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
-    v.append('Resumen'); v.addEventListener('click', cerrarPorVaca); W.append(v);
+    v.append('Resumen'); v.addEventListener('click', atras); W.append(v);
     var fecha = ultimoFinca[PV.finca];
     var L = (D.pesajes || []).filter(function (p) { return p.finca === PV.finca && p.fecha === fecha; }).sort(function (a, b) { return b.lt - a.lt; });
     var tit = el('div'); tit.append(el('h1', 'pz-tit', 'Producción por vaca'));
@@ -1477,6 +1483,98 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   }
   window.addEventListener('hashchange', function () { if (location.hash) { destino = location.hash; irADestino(); } });
 
+
+  // =============== volver atrás (botón, gesto de deslizar y botón atrás de Android) ===============
+  var pila = [], restaurando = false;
+  function fotoVista() {
+    return {
+      tab: vista.tab, y: window.scrollY,
+      animal: vista.tab === 'animales' && !$('#ficha').hidden ? vista.animal : null,
+      toro: vista.tab === 'toros' && !$('#toro').hidden ? vista.toro : null,
+      porvaca: vista.tab === 'resumen' && !$('#porvaca').hidden ? PV.finca : null,
+      pvsel: PV.sel,
+      pesaje: vista.tab === 'produccion' && !$('#pesaje').hidden
+    };
+  }
+  function apilar() {
+    if (restaurando || !D) return;
+    pila.push(fotoVista());
+    if (pila.length > 30) pila.shift();
+    try { history.pushState({ ganado: pila.length }, ''); } catch (e) {}
+  }
+  function cerrarSubvista() {
+    if (!$('#visor').hidden) { cerrarVisor(); return true; }
+    if (vista.tab === 'animales' && !$('#ficha').hidden) { cerrarAnimal(); return true; }
+    if (vista.tab === 'toros' && !$('#toro').hidden) { cerrarToro(); return true; }
+    if (vista.tab === 'resumen' && !$('#porvaca').hidden) { cerrarPorVaca(); return true; }
+    if (vista.tab === 'produccion' && !$('#pesaje').hidden) { cerrarPesaje(false); return true; }
+    return false;
+  }
+  function restaurar(s) {
+    restaurando = true;
+    try {
+      if (!$('#visor').hidden) cerrarVisor();
+      if (s.tab !== 'animales' && !$('#ficha').hidden) cerrarAnimal();
+      if (s.tab !== 'toros' && !$('#toro').hidden) cerrarToro();
+      if (s.tab !== 'resumen' && !$('#porvaca').hidden) cerrarPorVaca();
+      irA(s.tab, true);
+      var a = s.animal && porId[s.animal], t = s.toro && (D.toros || []).filter(function (x) { return x.nombre === s.toro; })[0];
+      if (a) abrirAnimal(a);
+      else if (s.tab === 'animales') cerrarAnimal();
+      if (t) abrirToro(t);
+      else if (s.tab === 'toros') cerrarToro();
+      if (s.porvaca) { abrirPorVaca(s.porvaca); PV.sel = s.pvsel || 0; dibujarPorVaca(); }
+      else if (s.tab === 'resumen') cerrarPorVaca();
+      if (s.pesaje) abrirPesaje();
+      else if (s.tab === 'produccion' && !$('#pesaje').hidden) cerrarPesaje(false);
+    } finally { restaurando = false; }
+    setTimeout(function () { window.scrollTo(0, s.y || 0); }, 0);
+  }
+  // Un paso atrás: vuelve a la pantalla anterior, o cierra la que esté abierta.
+  function atras() {
+    if (!$('#visor').hidden) { cerrarVisor(); return; }
+    if (pila.length) { try { history.back(); } catch (e) { restaurar(pila.pop()); } return; }
+    cerrarSubvista();
+  }
+  window.addEventListener('popstate', function () {
+    if (!$('#visor').hidden) { cerrarVisor(); return; }
+    if (pila.length) restaurar(pila.pop()); else cerrarSubvista();
+  });
+
+  // Gesto: poner el dedo en el borde izquierdo y deslizar hacia la derecha.
+  (function () {
+    var x0 = 0, y0 = 0, activo = false, dx = 0, flecha = null, main = $('#main');
+    function puedeVolver() { return !$('#visor').hidden || pila.length || (vista.tab === 'animales' && !$('#ficha').hidden) || (vista.tab === 'toros' && !$('#toro').hidden) || (vista.tab === 'resumen' && !$('#porvaca').hidden) || (vista.tab === 'produccion' && !$('#pesaje').hidden); }
+    document.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) return;
+      var t = e.touches[0];
+      if (t.clientX > 28 || !puedeVolver()) return;
+      activo = true; x0 = t.clientX; y0 = t.clientY; dx = 0;
+      if (!flecha) { flecha = el('div', 'gesto-atras'); flecha.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>'; document.body.append(flecha); }
+      flecha.style.top = (t.clientY - 22) + 'px';
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!activo) return;
+      var t = e.touches[0]; dx = t.clientX - x0; var dy = Math.abs(t.clientY - y0);
+      if (dy > 60 && dy > dx) { cancelar(); return; }
+      var d = Math.max(0, Math.min(dx, 140));
+      main.style.transition = 'none'; main.style.transform = 'translateX(' + (d * 0.45) + 'px)';
+      flecha.style.opacity = Math.min(1, d / 80); flecha.style.transform = 'translateX(' + Math.min(d * 0.5, 60) + 'px)';
+      flecha.classList.toggle('listo', dx > 80);
+    }, { passive: true });
+    function cancelar() {
+      activo = false;
+      main.style.transition = 'transform .2s ease'; main.style.transform = '';
+      if (flecha) { flecha.style.opacity = 0; flecha.style.transform = ''; flecha.classList.remove('listo'); }
+    }
+    document.addEventListener('touchend', function () {
+      if (!activo) return;
+      var ok = dx > 80; cancelar();
+      if (ok) atras();
+    });
+    document.addEventListener('touchcancel', function () { if (activo) cancelar(); });
+  })();
+
   // =============== navegación ===============
   function irA(tab, mantener) {
     vista.tab = tab;
@@ -1487,7 +1585,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     if (tab === 'resumen' && D) dibujarResumen();
     if (!mantener) window.scrollTo(0, 0);
   }
-  document.querySelectorAll('#nav button').forEach(function (b) { b.addEventListener('click', function () { irA(b.dataset.tab); }); });
+  document.querySelectorAll('#nav button').forEach(function (b) { b.addEventListener('click', function () { pila = []; irA(b.dataset.tab); }); });
   document.querySelectorAll('#p-finca button').forEach(function (b) { b.addEventListener('click', function () { fincaProd = b.dataset.f; dibujarProduccion(); }); });
   $('#q').addEventListener('input', dibujarLista);
   $('#q-toro').addEventListener('input', dibujarToros);
@@ -1495,11 +1593,13 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   $('#btn-pesaje').addEventListener('click', abrirPesaje);
 
   function dibujarTodo() {
+    restaurando = true;
     dibujarFiltrosUb(); dibujarLista(); dibujarProduccion(); dibujarFiltrosRaza(); dibujarToros();
     var animal = vista.animal && porId[vista.animal], toro = vista.toro && D.toros && D.toros.filter(function (t) { return t.nombre === vista.toro; })[0];
     irA(vista.tab, true);
     if (vista.tab === 'animales' && animal) abrirAnimal(animal);
     else if (vista.tab === 'toros' && toro) abrirToro(toro);
+    restaurando = false;
     irADestino();
   }
 
