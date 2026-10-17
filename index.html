@@ -186,6 +186,43 @@
   .acceso{max-width:360px;width:100%}
   .acceso input{width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;border:1px solid var(--linea);background:var(--papel);color:var(--tinta);margin:12px 0}
   .error{color:var(--rojo);font-size:14px}
+
+  /* ---------- registrar (fotos y pesaje) ---------- */
+  .oculto{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  label.btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative}
+  label.btn:focus-within{outline:3px solid var(--arete);outline-offset:2px}
+  .acc-foto{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav) + 14px + env(safe-area-inset-bottom));z-index:50;background:var(--azul);color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;font-weight:600;max-width:min(92vw,520px);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .aviso.bien{background:var(--verde)} .aviso.mal{background:var(--rojo)}
+  @media (min-width:900px){ .aviso{bottom:24px} }
+  .prod-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .prod-top .seg{margin-bottom:0}
+  .pz-tit{font-size:24px;margin:2px 0 12px}
+  .pz-datos{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+  .pz-datos .seg{margin:0}
+  .campo{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--gris);font-weight:600;min-width:0}
+  .campo input,.campo select{font:inherit;font-size:16px;color:var(--tinta);background:var(--papel);border:1px solid var(--linea);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+  .pz-fotos{display:flex;flex-wrap:wrap;gap:10px}
+  .pz-foto,.pz-mas{width:120px;height:160px;border-radius:12px;overflow:hidden;position:relative;background:var(--suave)}
+  .pz-foto img{width:100%;height:100%;object-fit:cover}
+  .pz-x{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:18px;line-height:1}
+  .pz-mas{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--linea);color:var(--gris);font-weight:600;font-size:13px;cursor:pointer}
+  .pz-mas:focus-within{outline:3px solid var(--arete)}
+  .pz-acc{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+  .pz-leyendo{display:flex;align-items:center;gap:12px;color:var(--gris)} .pz-leyendo .spin{margin:0}
+  .btn[disabled]{opacity:.5;cursor:default}
+  .btn.alerta-btn{background:var(--rojo);border-color:var(--rojo)}
+  .pz-lista{display:flex;flex-direction:column;gap:10px}
+  .pz-vaca{background:var(--papel);border:1px solid var(--linea);border-radius:var(--r);padding:12px 14px}
+  .pz-vaca.duda{border-color:var(--arete);box-shadow:inset 4px 0 0 var(--arete)}
+  .pz-cab{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+  .pz-cuad{font-size:13px;color:var(--gris)}
+  .pz-quitar{border:0;background:none;color:var(--rojo);font-weight:600;font-size:13px;padding:4px}
+  .pz-campos{display:grid;grid-template-columns:minmax(0,1fr) 78px 86px;gap:8px}
+  @media (max-width:520px){ .pz-campos{grid-template-columns:1fr 1fr} .pz-campos .grande{grid-column:1/-1} }
+  .pz-nota{margin:8px 0 0;font-size:13px;color:var(--ambar);font-weight:600}
+  .pz-final{margin-top:16px} .pz-final p{margin:0 0 4px}
+  .pz-listo h2{margin-bottom:8px}
   @media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important} }
 </style>
 </head>
@@ -244,12 +281,18 @@
   </section>
 
   <section id="tab-produccion" hidden>
+    <div id="prod-vista">
+    <div class="prod-top">
     <div class="seg" id="p-finca" role="group" aria-label="Finca"><button type="button" class="on" data-f="Cartago">Cartago</button><button type="button" data-f="La Victoria">La Victoria</button></div>
+    <button class="btn prim" id="btn-pesaje" type="button">+ Registrar pesaje</button>
+    </div>
     <div class="panel">
       <h2 id="p-titulo" style="font-size:17px">Último pesaje</h2>
       <p class="nota">El cambio es frente al pesaje anterior de la misma vaca. Toca una vaca para abrir su ficha.</p>
       <div style="overflow-x:auto"><table id="t-prod"><thead></thead><tbody></tbody></table></div>
     </div>
+    </div>
+    <div id="pesaje" hidden></div>
   </section>
 
   <section id="tab-toros" hidden>
@@ -261,6 +304,8 @@
     <div id="toro" hidden></div>
   </section>
 </main>
+
+<div class="aviso" id="aviso" hidden role="status" aria-live="polite"></div>
 
 <div class="visor" id="visor" hidden role="dialog" aria-modal="true" aria-labelledby="visor-tit">
   <div class="vb"><b id="visor-tit"></b><button class="btn" id="visor-x" type="button">Cerrar</button></div>
@@ -497,7 +542,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
       }
       estadoRed(D ? 'Actualizando…' : 'Cargando…', true);
       return fuente.datos().then(function (d) {
-        listo(); preparar(d); dibujarTodo();
+        listo(); preparar(d); marcarPendientes().then(function () { dibujarTodo(); enviarCola(); });
         estadoRed(EN_GAS ? 'Leído de GANADO · ' + d.generado : 'Actualizado ' + fechaHora(d.guardado), true);
         guardarImagenes();
       }).catch(function (e) {
@@ -543,6 +588,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
       if (map[f.id]) return;
       f.codigo = h.codigo; f.nacimiento = iso(h.nacimiento); f.madre = h.madre; f.padre = h.padre;
       f.servicio = iso(h.servicio); f.posible = iso(h.posible); f.dg = h.dg; f.fotoId = h.fotoId;
+      f.enHV = true;
       map[f.id] = f;
     });
     var tomar = function (finca, nombre, codigo) {
@@ -732,6 +778,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     foto.append(arete(f.codigo, true));
     // como ponerImagen reemplaza el contenido, el arete se agrega cuando cargue
     var re = new MutationObserver(function () { if (!$('.arete', foto)) foto.append(arete(f.codigo, true)); }); re.observe(foto, { childList: true });
+    var fw = el('div'); fw.append(foto, botonesFoto(f, foto)); g.append(fw);
 
     var info = el('div'); g.append(info);
     var tt = el('div', 'ftitulo'); tt.append(el('h1', null, f.nombre), el('span', 'chip ' + (f.enProduccion ? 'prod' : ''), f.estado)); info.append(tt);
@@ -955,6 +1002,291 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   $('#visor-x').addEventListener('click', cerrarVisor);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#visor').hidden) cerrarVisor(); });
 
+  // =============== escribir en GANADO ===============
+  // Fotos de animales y pesaje de leche. Dentro de Apps Script usa
+  // google.script.run; en la app, un POST al mismo script (registro.gs).
+  function enviar(p, ms) {
+    if (EN_GAS) return new Promise(function (ok, mal) { google.script.run.withSuccessHandler(function (r) { if (r && r.error) mal(new Error(r.error)); else ok(r); }).withFailureHandler(mal).accionApp(p); });
+    var cuerpo = {}; Object.keys(p).forEach(function (k) { cuerpo[k] = p[k]; }); cuerpo.clave = clave();
+    var ctl = window.AbortController ? new AbortController() : null;
+    var t = ctl ? setTimeout(function () { ctl.abort(); }, ms || 120000) : null;
+    return fetch(GENEBOV_API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(cuerpo), signal: ctl ? ctl.signal : undefined, redirect: 'follow' })
+      .then(function (r) { if (!r.ok) throw new Error('El servidor respondió ' + r.status); return r.json(); })
+      .then(function (j) {
+        if (t) clearTimeout(t);
+        if (j && j.error === 'clave') throw new Error('La clave de acceso no es correcta. Toca Actualizar y escríbela otra vez.');
+        if (j && j.error) throw new Error(j.error);
+        return j;
+      }, function (e) { if (t) clearTimeout(t); throw (e && e.name === 'AbortError') ? new Error('El servidor tardó demasiado en responder.') : e; });
+  }
+
+  // Reduce la foto antes de enviarla (más rápida con poca señal).
+  function reducirFoto(file, max, calidad) {
+    return new Promise(function (ok, mal) {
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () {
+        var s = Math.min(1, (max || 1600) / Math.max(im.naturalWidth, im.naturalHeight));
+        var c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+        var durl = c.toDataURL('image/jpeg', calidad || 0.85);
+        ok({ data: durl.split(',')[1], mime: 'image/jpeg', url: durl });
+      };
+      im.onerror = function () { URL.revokeObjectURL(u); mal(new Error('No se pudo abrir la foto.')); };
+      im.src = u;
+    });
+  }
+
+  var tAviso = null;
+  function aviso(texto, tipo) {
+    var a = $('#aviso'); a.textContent = texto; a.className = 'aviso' + (tipo ? ' ' + tipo : ''); a.hidden = false;
+    clearTimeout(tAviso); tAviso = setTimeout(function () { a.hidden = true; }, tipo === 'mal' ? 7000 : 4000);
+  }
+
+  // ---- foto de un animal ----
+  function botonesFoto(f, foto) {
+    var w = el('div', 'acc-foto');
+    if (!f.enHV) { w.append(el('p', 'sub', 'Para ponerle foto, primero agrégalo a la Hoja de vida.')); return w; }
+    [['Tomar foto', 'environment'], ['Elegir de la galería', '']].forEach(function (o, i) {
+      var l = el('label', 'btn' + (i ? '' : ' prim'));
+      l.innerHTML = i ? '' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+      l.append(o[0]);
+      var inp = el('input'); inp.type = 'file'; inp.accept = 'image/*'; if (o[1]) inp.setAttribute('capture', o[1]); inp.className = 'oculto';
+      inp.addEventListener('change', function () { var file = inp.files && inp.files[0]; inp.value = ''; if (file) subirFotoAnimal(f, file, foto); });
+      l.append(inp); w.append(l);
+    });
+    if (f.fotoPendiente) w.append(el('span', 'chip prox', 'Foto pendiente de enviar'));
+    return w;
+  }
+  function marcarChip(foto) { var w = foto.parentNode && foto.parentNode.querySelector('.acc-foto'); if (w && !w.querySelector('.chip')) w.append(el('span', 'chip prox', 'Foto pendiente de enviar')); }
+  function mostrarFotoLocal(foto, f, url) {
+    var tag = foto.querySelector('.arete'); foto.textContent = '';
+    var fo = el('div', 'fondo'); fo.style.backgroundImage = 'url("' + url + '")';
+    var im = new Image(); im.src = url; im.alt = 'Foto de ' + f.nombre; im.addEventListener('click', function () { abrirFoto(url, im.alt); });
+    foto.append(fo, im); if (tag) foto.append(tag);
+  }
+  function subirFotoAnimal(f, file, foto) {
+    reducirFoto(file, 1600, 0.85).then(function (r) {
+      mostrarFotoLocal(foto, f, r.url);
+      var pedido = { accion: 'fotoAnimal', codigo: f.codigo, nombre: f.nombre, data: r.data, mime: r.mime };
+      if (!EN_GAS && !navigator.onLine) {
+        return ponerEnCola(pedido).then(function () { f.fotoPendiente = true; marcarChip(foto); aviso('Sin señal: la foto se enviará sola cuando haya internet.'); });
+      }
+      aviso('Enviando la foto de ' + f.nombre + '…');
+      return enviar(pedido, 120000).then(function (res) { fotoGuardada(f, res.fotoId, r.url); aviso('Foto de ' + f.nombre + ' guardada en GANADO.', 'bien'); })
+        .catch(function (e) {
+          if (EN_GAS || /tard|fetch|network|Failed/i.test(e.message)) {
+            if (EN_GAS) throw e;
+            return ponerEnCola(pedido).then(function () { f.fotoPendiente = true; marcarChip(foto); aviso('No se pudo enviar ahora; se reintentará sola cuando haya buena señal.'); });
+          }
+          throw e;
+        });
+    }).catch(function (e) { aviso('No se guardó la foto: ' + e.message, 'mal'); });
+  }
+  function fotoGuardada(f, fotoId, url) {
+    if (!fotoId) return;
+    f.fotoId = fotoId; f.fotoPendiente = false;
+    if (url) { fetch(url).then(function (r) { return r.blob(); }).then(function (b) { urlsObj[fotoId] = URL.createObjectURL(b); if (!EN_GAS) bd.put('img', fotoId, b).catch(function () {}); }).catch(function () {}); }
+    (D.animales || []).forEach(function (h) { if (String(h.codigo) === String(f.codigo) && low(h.nombre) === low(f.nombre)) h.fotoId = fotoId; });
+    if (!EN_GAS) bd.put('kv', 'datos', D).catch(function () {});
+  }
+  // cola de fotos tomadas sin señal
+  function ponerEnCola(p) {
+    return bd.get('kv', 'cola').catch(function () { return null; }).then(function (c) { c = c || []; p.t = Date.now(); c.push(p); return bd.put('kv', 'cola', c); });
+  }
+  var enviandoCola = false;
+  function enviarCola() {
+    if (EN_GAS || enviandoCola || !navigator.onLine) return;
+    enviandoCola = true;
+    bd.get('kv', 'cola').catch(function () { return null; }).then(function (c) {
+      c = c || []; if (!c.length) { enviandoCola = false; return; }
+      var quedan = [], hechas = 0;
+      var sig = function (i) {
+        if (i >= c.length) return Promise.resolve();
+        return enviar(c[i], 120000).then(function (res) {
+          hechas++;
+          var f = A.filter(function (x) { return String(x.codigo) === String(c[i].codigo) && low(x.nombre) === low(c[i].nombre); })[0];
+          if (f) fotoGuardada(f, res.fotoId, 'data:' + c[i].mime + ';base64,' + c[i].data);
+        }, function (e) { if (!/tard|fetch|network|Failed/i.test(e.message)) aviso('Una foto de ' + c[i].nombre + ' no se pudo guardar: ' + e.message, 'mal'); else quedan.push(c[i]); })
+          .then(function () { return sig(i + 1); });
+      };
+      return sig(0).then(function () { return bd.put('kv', 'cola', quedan); }).then(function () {
+        enviandoCola = false;
+        if (hechas) aviso(hechas + (hechas === 1 ? ' foto pendiente se guardó' : ' fotos pendientes se guardaron') + ' en GANADO.', 'bien');
+      });
+    }).catch(function () { enviandoCola = false; });
+  }
+  function marcarPendientes() {
+    if (EN_GAS) return Promise.resolve();
+    return bd.get('kv', 'cola').catch(function () { return null; }).then(function (c) {
+      (c || []).forEach(function (p) { A.forEach(function (x) { if (String(x.codigo) === String(p.codigo) && low(x.nombre) === low(p.nombre)) x.fotoPendiente = true; }); });
+    });
+  }
+
+  // ---- pesaje de leche ----
+  var P = null;
+  function hoyIso() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function fechaHoja(i) { var p = i.split('-'); return (+p[2]) + '/' + (+p[1]) + '/' + p[0].slice(2); }
+  function guardarBorrador() { try { if (P) localStorage.setItem('ganado_pesaje', JSON.stringify({ finca: P.finca, fecha: P.fecha, lecturas: P.lecturas, animales: P.animales, paso: P.paso === 'revisar' ? 'revisar' : 'fotos' })); else localStorage.removeItem('ganado_pesaje'); } catch (e) {} }
+  function abrirPesaje() {
+    $('#prod-vista').hidden = true; $('#pesaje').hidden = false;
+    if (!P) { var b = null; try { b = JSON.parse(localStorage.getItem('ganado_pesaje') || 'null'); } catch (e) {} P = b ? { finca: b.finca, fecha: b.fecha, lecturas: b.lecturas || [], animales: b.animales || [], fotos: [], paso: b.paso } : { finca: fincaProd, fecha: hoyIso(), fotos: [], lecturas: [], animales: [], paso: 'fotos' }; }
+    dibujarPesaje(); window.scrollTo(0, 0);
+  }
+  function cerrarPesaje(descartar) {
+    if (descartar) { P = null; guardarBorrador(); }
+    $('#pesaje').hidden = true; $('#prod-vista').hidden = false; dibujarProduccion(); window.scrollTo(0, 0);
+  }
+  function dibujarPesaje() {
+    var W = $('#pesaje'); W.innerHTML = '';
+    var v = el('button', 'volver'); v.type = 'button'; v.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>';
+    v.append('Producción'); v.addEventListener('click', function () { cerrarPesaje(false); }); W.append(v);
+    W.append(el('h1', 'pz-tit', 'Registrar pesaje de leche'));
+    if (P.paso === 'listo') return dibujarListo(W);
+
+    // finca y fecha
+    var top = el('div', 'panel pz-datos');
+    var seg = el('div', 'seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Finca');
+    ['Cartago', 'La Victoria'].forEach(function (fi) {
+      var b = el('button', P.finca === fi ? 'on' : '', fi); b.type = 'button'; b.setAttribute('aria-pressed', P.finca === fi);
+      b.addEventListener('click', function () { if (P.finca === fi) return; if (P.lecturas.length && !P.cambiarFinca) { P.cambiarFinca = true; aviso('Al cambiar de finca se borra la lista de vacas. Toca otra vez para confirmar.'); return; } P.cambiarFinca = false; P.finca = fi; P.lecturas = []; P.animales = []; P.paso = 'fotos'; guardarBorrador(); dibujarPesaje(); });
+      seg.append(b);
+    });
+    var fl = el('label', 'campo'); fl.append(el('span', null, 'Fecha del pesaje'));
+    var fe = el('input'); fe.type = 'date'; fe.value = P.fecha; fe.max = hoyIso(); fe.addEventListener('change', function () { P.fecha = fe.value || hoyIso(); guardarBorrador(); }); fl.append(fe);
+    top.append(seg, fl); W.append(top);
+
+    if (!EN_GAS && !navigator.onLine) { W.append(el('div', 'panel vacio', 'Para registrar el pesaje se necesita internet: las fotos se leen y se guardan directo en GANADO. Conéctate y vuelve a esta pantalla.')); }
+
+    if (P.paso === 'fotos') return dibujarPasoFotos(W);
+    dibujarRevision(W);
+  }
+  function dibujarPasoFotos(W) {
+    W.append(seccion(el('h2', null, 'Fotos del cuaderno')));
+    W.append(el('p', 'nota', 'Toma una foto por hoja del cuaderno (máximo 4), con buena luz y la hoja completa. Se leen con Gemini y después revisas vaca por vaca antes de guardar.'));
+    var box = el('div', 'pz-fotos');
+    P.fotos.forEach(function (fo, i) {
+      var c = el('div', 'pz-foto'); var im = new Image(); im.src = fo.url; im.alt = 'Hoja ' + (i + 1); c.append(im);
+      var x = el('button', 'pz-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Quitar hoja ' + (i + 1)); x.addEventListener('click', function () { P.fotos.splice(i, 1); dibujarPesaje(); }); c.append(x);
+      box.append(c);
+    });
+    if (P.fotos.length < 4) {
+      var l = el('label', 'pz-mas'); l.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+      l.append(el('span', null, P.fotos.length ? 'Otra hoja' : 'Tomar foto'));
+      var inp = el('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.className = 'oculto';
+      inp.addEventListener('change', function () {
+        var fs = Array.prototype.slice.call(inp.files || [], 0, 4 - P.fotos.length); inp.value = '';
+        Promise.all(fs.map(function (f) { return reducirFoto(f, 2000, 0.88); })).then(function (rs) { P.fotos = P.fotos.concat(rs); dibujarPesaje(); }).catch(function (e) { aviso(e.message, 'mal'); });
+      });
+      l.append(inp); box.append(l);
+    }
+    W.append(box);
+    var acc = el('div', 'pz-acc');
+    var leer = el('button', 'btn prim', P.fotos.length > 1 ? 'Leer las ' + P.fotos.length + ' fotos' : 'Leer la foto'); leer.type = 'button'; leer.disabled = !P.fotos.length;
+    leer.addEventListener('click', leerCuaderno);
+    var mano = el('button', 'btn', 'Escribir a mano, sin foto'); mano.type = 'button';
+    mano.addEventListener('click', function () {
+      cargarVacasFinca().then(function () { P.paso = 'revisar'; if (!P.lecturas.length) P.lecturas.push(lecturaVacia()); guardarBorrador(); dibujarPesaje(); }).catch(function (e) { aviso(e.message, 'mal'); });
+    });
+    acc.append(leer, mano); W.append(acc);
+  }
+  function lecturaVacia() { return { nombreDetectado: '', fila: null, kgd: '', lt: '', manual: true }; }
+  function cargarVacasFinca() {
+    if (P.animales.length) return Promise.resolve();
+    aviso('Cargando las vacas de ' + P.finca + '…');
+    return enviar({ accion: 'animalesFinca', finca: P.finca }, 60000).then(function (r) { P.animales = r.animales || []; });
+  }
+  function leerCuaderno() {
+    var W = $('#pesaje'), b = W.querySelector('.pz-acc');
+    b.innerHTML = ''; var sp = el('div', 'pz-leyendo'); sp.append(el('div', 'spin'), el('div', null, 'Leyendo el cuaderno… puede tardar hasta un minuto.')); b.append(sp);
+    enviar({ accion: 'leerPesaje', finca: P.finca, fotos: P.fotos.map(function (f) { return { data: f.data, mime: f.mime }; }) }, 240000).then(function (r) {
+      P.animales = r.animales || [];
+      P.lecturas = (r.lecturas || []).map(function (l) { return { nombreDetectado: l.nombreDetectado, fila: l.fila, confianza: l.confianza, seca: l.seca, sumaCoincide: l.sumaCoincide, am: l.kg1, pm: l.kg2, kgd: l.kgd == null ? '' : l.kgd, lt: l.lt == null ? '' : l.lt }; });
+      P.paso = 'revisar'; P.fotosLeidas = P.fotos.map(function (f) { return f.url; }); guardarBorrador(); dibujarPesaje();
+    }).catch(function (e) { aviso('No se pudo leer: ' + e.message, 'mal'); dibujarPesaje(); });
+  }
+  function dibujarRevision(W) {
+    var opciones = P.animales.slice().sort(function (a, b) { return String(a.nombre).localeCompare(String(b.nombre), 'es'); });
+    var cuenta = {}; P.lecturas.forEach(function (l) { if (l.fila) cuenta[l.fila] = (cuenta[l.fila] || 0) + 1; });
+    var sinVaca = P.lecturas.filter(function (l) { return !l.fila; }).length, repetidas = Object.keys(cuenta).filter(function (k) { return cuenta[k] > 1; }).length;
+    var total = P.lecturas.reduce(function (s, l) { return s + (Number(l.lt) || 0); }, 0);
+    var h = seccion(el('h2', null, 'Revisa cada vaca')); h.append(el('span', 'sub', P.lecturas.length + ' vacas · ' + f0(total) + ' L')); W.append(h);
+    W.append(el('p', 'nota', 'Compara con el cuaderno. Las marcadas en amarillo tienen un nombre dudoso o una suma que no cuadra. Al guardar, solo quedan con leche en ' + P.finca + ' las vacas de esta lista.'));
+    if ((P.fotosLeidas || []).length) {
+      var vf = el('button', 'btn', 'Ver la foto del cuaderno'); vf.type = 'button'; vf.style.marginBottom = '10px';
+      vf.addEventListener('click', function () { $('#visor-tit').textContent = 'Cuaderno'; var c = $('#visor-c'); c.innerHTML = ''; P.fotosLeidas.forEach(function (u) { var p = el('div', 'pag'); var im = new Image(); im.src = u; p.append(im); c.append(p); }); $('#visor').hidden = false; });
+      W.append(vf);
+    }
+    var L = el('div', 'pz-lista');
+    P.lecturas.forEach(function (l, i) {
+      var dudosa = !l.fila || (l.confianza != null && l.confianza < 1 && !l.manual && !l.revisada) || l.sumaCoincide === false || cuenta[l.fila] > 1;
+      var c = el('div', 'pz-vaca' + (dudosa ? ' duda' : ''));
+      var cab = el('div', 'pz-cab');
+      cab.append(el('span', 'pz-cuad', l.manual ? 'Agregada a mano' : 'En el cuaderno: ' + (l.nombreDetectado || '—')));
+      var x = el('button', 'pz-quitar', 'Quitar'); x.type = 'button'; x.addEventListener('click', function () { P.lecturas.splice(i, 1); guardarBorrador(); dibujarPesaje(); }); cab.append(x);
+      c.append(cab);
+      var sel = el('select'); sel.setAttribute('aria-label', 'Vaca');
+      var o0 = el('option', null, '— Elegir vaca —'); o0.value = ''; sel.append(o0);
+      opciones.forEach(function (a) { var o = el('option', null, a.nombre + (a.codigo !== '' && a.codigo != null ? ' · ' + a.codigo : '')); o.value = a.fila; if (String(a.fila) === String(l.fila)) o.selected = true; sel.append(o); });
+      sel.addEventListener('change', function () { l.fila = sel.value ? Number(sel.value) : null; l.revisada = true; guardarBorrador(); dibujarPesaje(); });
+      var fila = el('div', 'pz-campos');
+      var lv = el('label', 'campo grande'); lv.append(el('span', null, 'Vaca'), sel); fila.append(lv);
+      [['kgd', 'KGD'], ['lt', 'Litros']].forEach(function (k) {
+        var lb = el('label', 'campo'); lb.append(el('span', null, k[1]));
+        var inp = el('input'); inp.type = 'text'; inp.inputMode = 'decimal'; inp.value = l[k[0]] === '' || l[k[0]] == null ? '' : String(l[k[0]]).replace('.', ',');
+        inp.addEventListener('change', function () { var t = inp.value.replace(',', '.').trim(); l[k[0]] = t === '' ? '' : (isNaN(Number(t)) ? l[k[0]] : Number(t)); l.revisada = true; guardarBorrador(); dibujarPesaje(); });
+        lb.append(inp); fila.append(lb);
+      });
+      c.append(fila);
+      var notas = [];
+      if (!l.fila) notas.push('Elige a qué vaca corresponde.');
+      else if (cuenta[l.fila] > 1) notas.push('Esta vaca está repetida en la lista.');
+      else if (l.confianza != null && l.confianza < 1 && !l.manual && !l.revisada) notas.push('El nombre del cuaderno no es igual: confirma que sea la vaca correcta.');
+      if (l.sumaCoincide === false) notas.push('AM ' + f1(l.am) + ' + PM ' + f1(l.pm) + ' no da el total escrito: revisa los litros.');
+      if (l.seca) notas.push('El cuaderno la marca como seca.');
+      if (notas.length) c.append(el('p', 'pz-nota', notas.join(' ')));
+      L.append(c);
+    });
+    W.append(L);
+    var mas = el('button', 'btn', '+ Agregar otra vaca'); mas.type = 'button'; mas.style.marginTop = '10px';
+    mas.addEventListener('click', function () { P.lecturas.push(lecturaVacia()); guardarBorrador(); dibujarPesaje(); setTimeout(function () { var s = W.querySelectorAll('.pz-vaca select'); if (s.length) s[s.length - 1].focus(); }, 0); });
+    W.append(mas);
+
+    var fin = el('div', 'panel pz-final');
+    var problemas = [];
+    if (!P.lecturas.length) problemas.push('No hay vacas en la lista.');
+    if (sinVaca) problemas.push(sinVaca + (sinVaca === 1 ? ' vaca sin elegir.' : ' vacas sin elegir.'));
+    if (repetidas) problemas.push(repetidas + (repetidas === 1 ? ' vaca repetida.' : ' vacas repetidas.'));
+    if (problemas.length) fin.append(el('p', 'error', 'Antes de guardar: ' + problemas.join(' ')));
+    else fin.append(el('p', null, 'Se guardarán ' + P.lecturas.length + ' vacas (' + f0(total) + ' L) en ' + P.finca + ' con fecha ' + fFecha(P.fecha) + '. Se borra el KGD y LT del pesaje anterior de toda la finca, se crea la pestaña "' + fechaHoja(P.fecha) + '" y el pesaje pasa al historial.'));
+    var g = el('button', 'btn prim', 'Guardar pesaje en GANADO'); g.type = 'button'; g.disabled = !!problemas.length || (!EN_GAS && !navigator.onLine);
+    g.addEventListener('click', function () {
+      if (!P.confirmar) { P.confirmar = true; g.textContent = 'Toca otra vez para confirmar'; g.classList.add('alerta-btn'); return; }
+      guardarPesaje(g);
+    });
+    var otra = el('button', 'btn', 'Empezar de nuevo'); otra.type = 'button';
+    otra.addEventListener('click', function () { if (!P.reiniciar) { P.reiniciar = true; otra.textContent = 'Toca otra vez para borrar la lista'; return; } var fi = P.finca; P = { finca: fi, fecha: hoyIso(), fotos: [], lecturas: [], animales: [], paso: 'fotos' }; guardarBorrador(); dibujarPesaje(); });
+    var acc = el('div', 'pz-acc'); acc.append(g, otra); fin.append(acc); W.append(fin);
+  }
+  function guardarPesaje(btn) {
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    var pedido = { accion: 'guardarPesaje', finca: P.finca, fecha: fechaHoja(P.fecha), lecturas: P.lecturas.map(function (l) { var a = P.animales.filter(function (x) { return String(x.fila) === String(l.fila); })[0]; return { fila: l.fila, nombre: a ? a.nombre : l.nombreDetectado, kgd: l.kgd, lt: l.lt }; }) };
+    enviar(pedido, 240000).then(function (r) {
+      P.paso = 'listo'; P.resultado = r; P.confirmar = false;
+      try { localStorage.removeItem('ganado_pesaje'); } catch (e) {}
+      dibujarPesaje(); cargar(true);
+    }).catch(function (e) { P.confirmar = false; aviso('No se guardó el pesaje: ' + e.message, 'mal'); dibujarPesaje(); });
+  }
+  function dibujarListo(W) {
+    var r = P.resultado || {};
+    var p = el('div', 'panel pz-listo');
+    p.append(el('h2', null, 'Pesaje guardado'));
+    p.append(el('p', null, (r.guardadas || 0) + ' vacas guardadas en ' + P.finca + '. Se creó la pestaña "' + (r.hoja || fechaHoja(P.fecha)) + '"' + (r.historial && r.historial.ok ? ' y ' + r.historial.filas + ' filas en el Historial de pesajes.' : '.')));
+    if (r.fallas && r.fallas.length) p.append(el('p', 'error', 'No se pudieron guardar: ' + r.fallas.map(function (f) { return f.nombre || ('fila ' + f.fila); }).join(', ') + '. Revísalas en la hoja.'));
+    if (r.historial && !r.historial.ok) p.append(el('p', 'error', 'El pesaje quedó en la hoja de la finca, pero no pasó al Historial: ' + (r.historial.error || '') + '.'));
+    var b = el('button', 'btn prim', 'Ver la producción'); b.type = 'button'; b.addEventListener('click', function () { var fi = P.finca; P = null; fincaProd = fi; cerrarPesaje(false); });
+    p.append(b); W.append(p);
+  }
+
   // =============== navegación ===============
   function irA(tab, mantener) {
     vista.tab = tab;
@@ -969,6 +1301,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   $('#q').addEventListener('input', dibujarLista);
   $('#q-toro').addEventListener('input', dibujarToros);
   $('#btn-ref').addEventListener('click', function () { cargar(true); });
+  $('#btn-pesaje').addEventListener('click', abrirPesaje);
 
   function dibujarTodo() {
     dibujarFiltrosUb(); dibujarLista(); dibujarProduccion(); dibujarFiltrosRaza(); dibujarToros();
@@ -983,7 +1316,8 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   window.addEventListener('resize', medirCab); medirCab();
   var anchoPrev = window.innerWidth, rt;
   window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (!D || window.innerWidth === anchoPrev) return; anchoPrev = window.innerWidth; if (vista.tab === 'resumen') dibujarResumen(); }, 250); });
-  window.addEventListener('online', function () { if (D) cargar(true); });
+  window.addEventListener('online', function () { if (D) cargar(true); enviarCola(); if (P && !$('#pesaje').hidden) dibujarPesaje(); });
+  window.addEventListener('offline', function () { if (P && !$('#pesaje').hidden) dibujarPesaje(); });
   window.addEventListener('offline', function () { if (D && !EN_GAS) estadoRed('Sin conexión · datos del ' + fechaHora(D.guardado), false); });
 
   // app instalable: guarda la página para abrirla sin internet
