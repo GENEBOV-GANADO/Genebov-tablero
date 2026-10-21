@@ -1088,7 +1088,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   var tAviso = null;
   function aviso(texto, tipo) {
     var a = $('#aviso'); a.textContent = texto; a.className = 'aviso' + (tipo ? ' ' + tipo : ''); a.hidden = false;
-    clearTimeout(tAviso); tAviso = setTimeout(function () { a.hidden = true; }, tipo === 'mal' ? 7000 : 4000);
+    clearTimeout(tAviso); tAviso = setTimeout(function () { a.hidden = true; }, tipo === 'mal' ? 12000 : 4000);
   }
 
   // ---- foto de un animal ----
@@ -1179,7 +1179,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
   function abrirPesaje() {
     apilar();
     $('#prod-vista').hidden = true; $('#pesaje').hidden = false;
-    if (!P) { var b = null; try { b = JSON.parse(localStorage.getItem('ganado_pesaje') || 'null'); } catch (e) {} P = b ? { finca: b.finca, fecha: b.fecha, lecturas: b.lecturas || [], animales: b.animales || [], fotos: [], paso: b.paso } : { finca: fincaProd, fecha: hoyIso(), fotos: [], lecturas: [], animales: [], paso: 'fotos' }; }
+    if (!P) { var b = null; try { b = JSON.parse(localStorage.getItem('ganado_pesaje') || 'null'); } catch (e) {} P = b ? { finca: b.finca, fecha: (b.lecturas && b.lecturas.length) ? b.fecha : hoyIso(), lecturas: b.lecturas || [], animales: b.animales || [], fotos: [], paso: b.paso } : { finca: fincaProd, fecha: hoyIso(), fotos: [], lecturas: [], animales: [], paso: 'fotos' }; }
     dibujarPesaje(); window.scrollTo(0, 0);
   }
   function cerrarPesaje(descartar) {
@@ -1225,7 +1225,7 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
       var inp = el('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.className = 'oculto';
       inp.addEventListener('change', function () {
         var fs = Array.prototype.slice.call(inp.files || [], 0, 4 - P.fotos.length); inp.value = '';
-        Promise.all(fs.map(function (f) { return reducirFoto(f, 2000, 0.88); })).then(function (rs) { P.fotos = P.fotos.concat(rs); dibujarPesaje(); }).catch(function (e) { aviso(e.message, 'mal'); });
+        Promise.all(fs.map(function (f) { return reducirFoto(f, 1700, 0.82); })).then(function (rs) { P.fotos = P.fotos.concat(rs); dibujarPesaje(); }).catch(function (e) { aviso(e.message, 'mal'); });
       });
       l.append(inp); box.append(l);
     }
@@ -1245,14 +1245,29 @@ var GENEBOV_API = 'https://script.google.com/macros/s/AKfycbxDVEVG5-w3kvPKwpvQ9E
     aviso('Cargando las vacas de ' + P.finca + '…');
     return enviar({ accion: 'animalesFinca', finca: P.finca }, 60000).then(function (r) { P.animales = r.animales || []; });
   }
+  function esFallaRed(e) { return /load failed|failed to fetch|network|tardó/i.test(String(e && e.message || e)); }
   function leerCuaderno() {
     var W = $('#pesaje'), b = W.querySelector('.pz-acc');
-    b.innerHTML = ''; var sp = el('div', 'pz-leyendo'); sp.append(el('div', 'spin'), el('div', null, 'Leyendo el cuaderno… puede tardar hasta un minuto.')); b.append(sp);
-    enviar({ accion: 'leerPesaje', finca: P.finca, fotos: P.fotos.map(function (f) { return { data: f.data, mime: f.mime }; }) }, 240000).then(function (r) {
+    b.innerHTML = ''; var sp = el('div', 'pz-leyendo'), txt = el('div', null, 'Conectando con GANADO…'); sp.append(el('div', 'spin'), txt); b.append(sp);
+    var etapa = 'ping';
+    enviar({ accion: 'ping' }, 30000).then(function (r) {
+      if (!r || !r.registro) throw new Error('falta-registro');
+      if (!r.gemini) throw new Error('Falta la clave de Gemini (GEMINI_API_KEY) en las Propiedades del script.');
+      etapa = 'leer'; txt.textContent = 'Leyendo el cuaderno… puede tardar hasta un minuto. Deja la app abierta y la pantalla encendida.';
+      return enviar({ accion: 'leerPesaje', finca: P.finca, fotos: P.fotos.map(function (f) { return { data: f.data, mime: f.mime }; }) }, 240000);
+    }).then(function (r) {
       P.animales = r.animales || [];
       P.lecturas = (r.lecturas || []).map(function (l) { return { nombreDetectado: l.nombreDetectado, fila: l.fila, confianza: l.confianza, seca: l.seca, sumaCoincide: l.sumaCoincide, am: l.kg1, pm: l.kg2, kgd: l.kgd == null ? '' : l.kgd, lt: l.lt == null ? '' : l.lt }; });
       P.paso = 'revisar'; P.fotosLeidas = P.fotos.map(function (f) { return f.url; }); guardarBorrador(); dibujarPesaje();
-    }).catch(function (e) { aviso('No se pudo leer: ' + e.message, 'mal'); dibujarPesaje(); });
+    }).catch(function (e) {
+      var m = String(e && e.message || e);
+      if (m === 'falta-registro' || (etapa === 'ping' && (esFallaRed(e) || /desconocida/i.test(m))))
+        m = 'La app no pudo conectarse con el script de GANADO. Revisa que el archivo registro.gs esté en Apps Script y que hayas hecho Implementar › Gestionar implementaciones › Nueva versión.';
+      else if (etapa === 'leer' && esFallaRed(e))
+        m = 'Se cortó la conexión mientras se leían las fotos. Mantén la app abierta, con buena señal y la pantalla encendida, e inténtalo otra vez.';
+      else m = 'No se pudo leer: ' + m;
+      aviso(m, 'mal'); dibujarPesaje();
+    });
   }
   function dibujarRevision(W) {
     var opciones = P.animales.slice().sort(function (a, b) { return String(a.nombre).localeCompare(String(b.nombre), 'es'); });
